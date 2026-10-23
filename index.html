@@ -3,51 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src blob: https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787 https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src blob: https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787 https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://contentpad.io https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#0b0b0d">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111'/%3E%3Cpath d='M14 46V30l18-12 18 12v16H38V36H26v10z' fill='%23c9b6ff'/%3E%3C/svg%3E">
-<title>JCC Site Ops</title>
+<meta name="theme-color" content="#0e1420">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%230e1420'/%3E%3Cpath d='M7 35V21h4v-6h4V7.5h10V15h4v6h4v14M3 35h34' fill='none' stroke='%23c9a15a' stroke-width='2'/%3E%3C/svg%3E">
+<title>2 Park Site Ops</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="description" content="JCC Management site operations for 2 Park Avenue: drawings, punch, RFIs, submittals and daily logs.">
+<meta name="description" content="2 Park Site Ops: JCC Management's field app for 2 Park Avenue. Drawings, punch lists, RFIs, submittals and daily logs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: field-ops app shell. Desktop = project rail + workspace; phone (≤760px) = top bar + bottom tab bar.
-   Palette = ContentPad liquid theme (navy ground, lilac primary, cyan secondary; red/orange/green keep their meanings). */
+/* 2 Park Site Ops. Layout: field-ops app shell. Desktop = project rail + workspace; phone (≤760px) = top bar + bottom tab bar.
+   Palette = 2 Park Avenue skin (see the end of this sheet). Variable names are kept from the shared app: --lilac is the primary (bronze). */
 :root{
-  --bg:#050611; --bg2:#0b0d1d; --bg3:#121530; --bg4:#1a1e3f;
-  --bd:rgba(184,168,255,.14); --bd2:rgba(184,168,255,.28);
-  --tx:#eceaff; --mid:#b4b2d6; --dim:#7f7ea6;
-  --lilac:#b8a8ff; --lilac-ink:#14102e; --cyan:#22d3ee; --blue:#6b8cff;
-  --red:#ff5d6c; --orange:#ffa94d; --green:#2dbd78; --purple:#d08cff; --gold:#e3c26a;
-  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(107,140,255,.22), transparent 70%);
-  --plan-bg:#0c1028; --plan-line:#9aa3dc; --plan-soft:rgba(154,163,220,.35); --plan-room:rgba(184,168,255,.06);
-  --fd:'Bebas Neue',Impact,'Arial Narrow',sans-serif;
+  --bg:#0e1420; --bg2:#151d2c; --bg3:#1c2638; --bg4:#26324a;
+  --bd:rgba(201,161,90,.16); --bd2:rgba(201,161,90,.32);
+  --tx:#ede4d3; --mid:#c4b9a4; --dim:#948b7a;
+  --lilac:#c9a15a; --lilac-ink:#1a1408; --cyan:#4fb8a8; --blue:#6f95d1;
+  --red:#e06a4f; --orange:#e3a843; --green:#7cb867; --purple:#c39ad8; --gold:#d9b46a;
+  --glow:radial-gradient(1100px 480px at 18% -160px, rgba(201,161,90,.13), transparent 70%);
+  --plan-bg:#0b111c; --plan-line:#c9b98f; --plan-soft:rgba(201,185,143,.35); --plan-room:rgba(201,161,90,.06);
+  --fd:'Josefin Sans','Futura','Century Gothic',sans-serif;
   --fb:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --fm:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --fm:'Instrument Sans',system-ui,sans-serif;
   --r:12px; --r2:8px;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
-  --bg:#f3f2fb; --bg2:#ffffff; --bg3:#ebe9f8; --bg4:#dedbf3;
-  --bd:rgba(40,30,110,.12); --bd2:rgba(40,30,110,.24);
-  --tx:#14122b; --mid:#45436b; --dim:#6e6c92;
-  --lilac:#5b47d6; --lilac-ink:#ffffff; --cyan:#0e8fa6; --blue:#3557d8;
-  --red:#d43145; --orange:#c26a0b; --green:#14895a; --purple:#9a3fd0; --gold:#9a7a12;
-  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(91,71,214,.12), transparent 70%);
-  --plan-bg:#ffffff; --plan-line:#2c2f5c; --plan-soft:rgba(44,47,92,.28); --plan-room:rgba(91,71,214,.05);
+  --bg:#ebe6db; --bg2:#f7f3ea; --bg3:#e2dccf; --bg4:#d6cfbf;
+  --bd:rgba(28,34,48,.13); --bd2:rgba(28,34,48,.26);
+  --tx:#1c2230; --mid:#3e4558; --dim:#6b6458;
+  --lilac:#8a6420; --lilac-ink:#fffaf0; --cyan:#1f7d70; --blue:#2f5a9e;
+  --red:#b4442b; --orange:#a86a0c; --green:#3f7a2e; --purple:#7d4b98; --gold:#8a6420;
+  --glow:radial-gradient(1100px 480px at 18% -160px, rgba(138,100,32,.10), transparent 70%);
+  --plan-bg:#fbf8f1; --plan-line:#1c2230; --plan-soft:rgba(28,34,48,.28); --plan-room:rgba(138,100,32,.05);
   color-scheme:light;
 }}
 :root[data-theme="light"]{
-  --bg:#f3f2fb; --bg2:#ffffff; --bg3:#ebe9f8; --bg4:#dedbf3;
-  --bd:rgba(40,30,110,.12); --bd2:rgba(40,30,110,.24);
-  --tx:#14122b; --mid:#45436b; --dim:#6e6c92;
-  --lilac:#5b47d6; --lilac-ink:#ffffff; --cyan:#0e8fa6; --blue:#3557d8;
-  --red:#d43145; --orange:#c26a0b; --green:#14895a; --purple:#9a3fd0; --gold:#9a7a12;
-  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(91,71,214,.12), transparent 70%);
-  --plan-bg:#ffffff; --plan-line:#2c2f5c; --plan-soft:rgba(44,47,92,.28); --plan-room:rgba(91,71,214,.05);
+  --bg:#ebe6db; --bg2:#f7f3ea; --bg3:#e2dccf; --bg4:#d6cfbf;
+  --bd:rgba(28,34,48,.13); --bd2:rgba(28,34,48,.26);
+  --tx:#1c2230; --mid:#3e4558; --dim:#6b6458;
+  --lilac:#8a6420; --lilac-ink:#fffaf0; --cyan:#1f7d70; --blue:#2f5a9e;
+  --red:#b4442b; --orange:#a86a0c; --green:#3f7a2e; --purple:#7d4b98; --gold:#8a6420;
+  --glow:radial-gradient(1100px 480px at 18% -160px, rgba(138,100,32,.10), transparent 70%);
+  --plan-bg:#fbf8f1; --plan-line:#1c2230; --plan-soft:rgba(28,34,48,.28); --plan-room:rgba(138,100,32,.05);
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -312,40 +312,86 @@ tr:last-child td{border-bottom:0}
   .row .num{display:none}
 }
 @media (prefers-reduced-motion:no-preference){ .drawer{animation:slide .18s ease-out} .modal{animation:pop .16s ease-out} @keyframes slide{from{transform:translateX(24px);opacity:.4}} @keyframes pop{from{transform:translate(-50%,-48%);opacity:.5}} }
+
+/* ── 2 Park Avenue skin ───────────────────────────────────────────────
+   Night navy ground and limestone type from the facade at dusk; bronze from the doors and the 2 Park mark;
+   status colours from Léon-Victor Solon's polychrome terracotta crown (red, gold, glazed teal, green).
+   Josefin Sans carries the 1920s geometric lettering; Instrument Sans does the reading. */
+.mark{width:44px;height:44px;border-radius:8px;background:transparent;color:var(--lilac);border:1px solid var(--bd2);display:grid;place-items:center;flex:none}
+.mark svg{width:30px;height:30px}
+.btn{border-radius:8px}
+.btn.pri{letter-spacing:.02em}
+.seg button,.pill{border-radius:6px}
+.eyebrow,.navgroup{text-transform:none;letter-spacing:.01em;font-family:var(--fb);font-weight:600}
+.eyebrow{font-size:12px}
+.facts dt,.kv dt,th{text-transform:none;letter-spacing:.01em;font-size:12px;font-family:var(--fb)}
+.navgroup{font-size:11px;padding-top:14px}
+.tag{font-family:var(--fb);font-variant-numeric:tabular-nums}
+.disp,.topbar .ttl h1,.railbrand .t1{font-family:var(--fd)}
+.topbar .ttl h1{font-weight:300;letter-spacing:.04em;font-size:30px}
+.railbrand .t1{font-size:21px;font-weight:600;letter-spacing:.06em}
+.railbrand .t2{letter-spacing:.02em}
+nav.side button[aria-current="page"]{box-shadow:inset 2px 0 0 var(--lilac)}
+#rail{background:linear-gradient(180deg,color-mix(in srgb,var(--bg2) 92%,transparent),var(--bg))}
+/* sign-in: the facade on one side, the form on the other; a photo band on top on phones */
+#login{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:100%;padding:0;place-items:stretch}
+.login-art{position:relative;background:linear-gradient(90deg,transparent 55%,var(--bg)),linear-gradient(0deg,rgba(14,20,32,.85),transparent 45%),url(https://contentpad.io/spaces/2-park-ave/brand/exterior.webp) center 30%/cover no-repeat,#1c2638}
+.art-cap{position:absolute;left:clamp(20px,4vw,48px);bottom:clamp(20px,5vh,48px);display:flex;gap:14px;align-items:center;color:#ede4d3}
+.art-cap .mark{color:#d9b46a;border-color:rgba(217,180,106,.45);background:rgba(14,20,32,.45);backdrop-filter:blur(6px)}
+.art-cap b{display:block;font:600 18px/1.2 var(--fd);letter-spacing:.06em}
+.art-cap span{font-size:13px;color:rgba(237,228,211,.75)}
+.login-side{display:grid;place-items:center;padding:40px max(20px,env(safe-area-inset-right,0px)) 40px 20px}
+.login-card{max-width:420px;gap:24px}
+.login-card h1{font:300 54px/1 var(--fd);letter-spacing:.05em;margin:6px 0 12px}
+.kicker{margin:0;font-size:13px;color:var(--lilac);font-weight:600;letter-spacing:.02em}
+.lede{margin:0;max-width:44ch}
+.login-card form{border-radius:12px;border-color:var(--bd2)}
+.forgot{display:grid;gap:8px;justify-items:start}
+.forgot .fine{margin:0}
+@media (max-width:860px){
+  #login{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+  .login-art{height:clamp(220px,36vh,320px);background:linear-gradient(0deg,var(--bg),transparent 60%),url(https://contentpad.io/spaces/2-park-ave/brand/exterior.webp) center 28%/cover no-repeat,#1c2638}
+  .art-cap{left:max(16px,env(safe-area-inset-left,0px));bottom:14px}
+  .art-cap .mark{width:38px;height:38px}
+  .login-side{place-items:start center;padding:8px max(16px,env(safe-area-inset-right,0px)) 32px max(16px,env(safe-area-inset-left,0px))}
+  .login-card h1{font-size:44px}
+}
+@media (prefers-reduced-motion:no-preference){ .login-card{animation:rise .5s ease-out both} @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}} }
 </style>
 </head>
 <body>
 
 <div id="login" hidden>
-  <div class="login-card">
-    <div class="brandrow">
-      <div class="mark">JC</div>
-      <div><div class="eyebrow">JCC Management · 2 Park Avenue</div><div class="fine">Powered by ContentPad</div></div>
+  <div class="login-art" role="img" aria-label="The Park Avenue facade of 2 Park Avenue">
+    <div class="art-cap"><span class="mark"><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M7 35V21h4v-6h4V7.5h10V15h4v6h4v14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="miter"/><path d="M17.5 35V12M20 35V7.5M22.5 35V12M13 35V18M27 35V18" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M3 35h34" stroke="currentColor" stroke-width="1.7"/></svg></span><div><b>2 Park Avenue</b><span>Park Avenue at 33rd Street · Ely Jacques Kahn, 1928</span></div></div>
+  </div>
+  <div class="login-side">
+    <div class="login-card">
+      <div>
+        <p class="kicker">JCC Management · powered by ContentPad</p>
+        <h1>2 Park<br>Site Ops</h1>
+        <p class="mid lede">Drawings, punch lists, RFIs, submittals and daily logs for every job in the building. Contractors, architects and the owner's team sign in here with the PIN from their invite.</p>
+      </div>
+      <form id="loginForm" autocomplete="on" novalidate>
+        <div class="field"><label for="lgEmail">Work email</label><input id="lgEmail" type="email" inputmode="email" autocomplete="username" placeholder="you@company.com" required></div>
+        <div class="field"><label for="lgPin">6-digit PIN</label><input id="lgPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required></div>
+        <div class="err" id="lgErr" role="alert"></div>
+        <button class="btn pri" type="submit">Sign in</button>
+      </form>
+      <div class="forgot"><button class="btn ghost" type="button" id="forgotPin">Email me a new PIN</button><p class="fine" id="forgotMsg" aria-live="polite">Lost your PIN? Type your email above first. A new PIN signs you out on your other devices.</p></div>
     </div>
-    <div>
-      <h1>Site Ops</h1>
-      <p class="mid" style="margin:8px 0 0">Plans, punch, RFIs, submittals, daily logs and building permits for every job in the building. Contractors, architects and the owner's team sign in here. No ContentPad membership needed.</p>
-    </div>
-    <form id="loginForm" autocomplete="on" novalidate>
-      <div class="field"><label for="lgEmail">Work email</label><input id="lgEmail" type="email" inputmode="email" autocomplete="username" placeholder="you@company.com" required></div>
-      <div class="field"><label for="lgPin">6-digit access PIN</label><input id="lgPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required></div>
-      <div class="err" id="lgErr" role="alert"></div>
-      <button class="btn pri" type="submit">Sign in</button>
-      <p class="fine" style="margin:0">Your PIN came in your invite email from JCC Management. Lost it? Enter your email above and tap "Email me a new PIN". A new PIN signs you out on other devices.</p>
-    </form>
-    <div class="demo-acc"><button class="btn ghost" type="button" id="forgotPin">Email me a new PIN</button><p class="fine" id="forgotMsg" style="margin:0" aria-live="polite"></p></div>
   </div>
 </div>
 
 <div id="app" hidden>
   <aside id="rail">
-    <div class="railbrand"><div class="mark">JC</div><div><div class="t1">Site Ops</div><div class="t2">JCC Management · 2 Park Ave</div></div></div>
+    <div class="railbrand"><span class="mark"><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M7 35V21h4v-6h4V7.5h10V15h4v6h4v14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="miter"/><path d="M17.5 35V12M20 35V7.5M22.5 35V12M13 35V18M27 35V18" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M3 35h34" stroke="currentColor" stroke-width="1.7"/></svg></span><div><div class="t1">2 Park</div><div class="t2">Site Ops · JCC Management</div></div></div>
     <div class="field"><label for="projSel" class="eyebrow">Project</label><select id="projSel" class="projsel"></select></div>
     <nav class="side" id="sideNav" aria-label="Sections"></nav>
     <div class="whoami" id="whoami"></div>
   </aside>
   <main id="main">
-    <div class="mtop"><div class="mark" style="width:40px;height:40px;font-size:20px">JC</div><label for="projSelM" class="eyebrow" hidden>Project</label><select id="projSelM" aria-label="Project"></select><button class="bell" id="bellBtnM" aria-label="Notifications"></button><button class="av" id="meBtn" aria-label="Account"></button></div>
+    <div class="mtop"><span class="mark" style="width:40px;height:40px"><svg viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M7 35V21h4v-6h4V7.5h10V15h4v6h4v14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="miter"/><path d="M17.5 35V12M20 35V7.5M22.5 35V12M13 35V18M27 35V18" fill="none" stroke="currentColor" stroke-width="1" opacity=".55"/><path d="M3 35h34" stroke="currentColor" stroke-width="1.7"/></svg></span><label for="projSelM" class="eyebrow" hidden>Project</label><select id="projSelM" aria-label="Project"></select><button class="bell" id="bellBtnM" aria-label="Notifications"></button><button class="av" id="meBtn" aria-label="Account"></button></div>
     <div class="topbar"><div class="ttl"><h1 id="viewTitle">Home</h1><div class="sub" id="viewSub"></div></div><div class="acts"><span id="topActs" class="acts"></span><button class="bell" id="bellBtn" aria-label="Notifications"></button></div></div>
     <div id="view"></div>
   </main>
@@ -356,7 +402,7 @@ tr:last-child td{border-bottom:0}
 
 <script>
 /* ============================================================
-   JCC Site Ops — working demo.
+   2 Park Site Ops — live app (generated by build_live.py from the demo; all data via cpd-api /site/*).
    Data model mirrors the production plan (see build plan):
      projects  → public.agency_projects (category 'construction', workspace = JCC)
      users     → public.site_users        (new; worker-only, no anon)
@@ -414,6 +460,8 @@ const PRI = { high: { l: 'High', c: 'red' }, med: { l: 'Medium', c: 'orange' }, 
 const pill = (map, k) => { const s = map[k] || { l: k, c: 'dim' }; return `<span class="pill c-${s.c}">${esc(s.l)}</span>`; };
 
 /* ---------- Floor 20 rooms: same unit codes and x/y (% of plate) as ContentPad Spaces /spaces/2-park-ave ---------- */
+const SHEET_AR = {};
+function sheetAspect(img) { if (!img.naturalWidth) return; const ar = img.naturalWidth + '/' + img.naturalHeight; SHEET_AR[img.src.split('?')[0]] = ar; const c = img.closest('.plancanvas'); if (c) c.style.aspectRatio = ar; }
 let ROOMS = [
   ['2062','North Window Office',46.5,6.4],['2020','South Window Office',44.2,90.5],['2040','West Window Office',6.6,58.5],
   ['2050','Northwest Corner',7.2,17.2],['2004','Southeast Corner',93,92.4],['20E','East Executive',94,52],
@@ -569,6 +617,8 @@ async function enter() {
 }
 function signOut(expired) { ME = null; TOKEN = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} closeLayer(); showLogin(expired === true ? 'Your session ended. Sign in again.' : ''); }
 async function resume() {
+  const handoff = location.hash.match(/^#t=([^&]+)/);
+  if (handoff) { try { localStorage.setItem(TOKEN_KEY, decodeURIComponent(handoff[1])); } catch (e) {} history.replaceState(null, '', location.pathname + location.search); }
   try { TOKEN = localStorage.getItem(TOKEN_KEY); } catch (e) { TOKEN = null; }
   if (!TOKEN) return showLogin();
   try { await enter(); } catch (e) { if (!(e instanceof SignedOut)) showLogin(e.message); }
@@ -793,7 +843,7 @@ function shapeSVG(s, op = 1) {
   return '';
 }
 function sheetBase(sh, rv) {
-  if (rv.img) return `<img class="sheetimg" src="${rv.img}" alt="${esc(sh.code)} revision ${rv.rev}">`;
+  if (rv.img) return `<img class="sheetimg" src="${rv.img}" alt="${esc(sh.code)} revision ${rv.rev}" onload="sheetAspect(this)">`;
   if (sh.layer) return planSVG(sh.layer);
   return `<div class="empty" style="position:absolute;inset:0;display:grid;place-items:center;border:0">No image for this revision</div>`;
 }
@@ -833,7 +883,7 @@ function vPlans() {
         <p class="fine" style="margin:0;flex-basis:100%">${MK.tool === 'comment' ? 'Tap a spot to pin a comment there. Everyone with access to drawings sees it.' : MK.tool === 'text' ? 'Tap where the note goes.' : 'Drag on the sheet to draw. Published markups are visible to everyone with drawing access; private ones only to you.'}</p></div>` : ''}
       ${!isCur ? `<div class="alert c-orange" style="margin-bottom:10px"><span class="s"></span><div style="color:var(--tx)">You are looking at Rev ${rv.rev}, which was replaced by Rev ${sh.rev}. <a href="#" id="toCur">Go to the current revision</a></div></div>` : ''}
       ${PLAN.drop ? '<p class="drop-hint" style="margin:0 0 8px">Tap where the issue is. The room is picked up from the plan.</p>' : ''}
-      <div class="planwrap"><div class="plancanvas ${PLAN.drop ? 'dropping' : ''} ${marking ? 'marking' : ''}" id="canvas" style="width:${PLAN.zoom * 100}%">${sheetBase(sh, rv)}
+      <div class="planwrap"><div class="plancanvas ${PLAN.drop ? 'dropping' : ''} ${marking ? 'marking' : ''}" id="canvas" style="width:${PLAN.zoom * 100}%;aspect-ratio:${(rv.img && SHEET_AR[rv.img.split('?')[0]]) || '1000/640'}">${sheetBase(sh, rv)}
         ${!isCur ? `<div class="superseded" aria-hidden="true">SUPERSEDED · REV ${rv.rev}</div>` : ''}
         <svg class="mk-layer" id="mk" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-label="Markups">${mks.filter(m => !MK.hidden[m.id]).map(m => `<g data-mk="${m.id}">${m.shapes.map(s => shapeSVG(s, m.rev < rv.rev ? .45 : 1)).join('')}</g>`).join('')}<g id="mkDraft">${MK.shapes.map(s => shapeSVG(s)).join('')}</g></svg>
         ${pins.map(i => `<button class="pin c-${FIELD_STATUS[i.status].c}" style="left:${i.loc.x}%;top:${i.loc.y}%" data-item="${i.id}" aria-label="${esc(i.type + ' ' + i.num + ': ' + i.title)}"><i><span>${i.num}</span></i></button>`).join('')}
