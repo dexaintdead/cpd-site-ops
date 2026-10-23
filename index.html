@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; worker-src blob: https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787 https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://cpd-api.dex-fe2.workers.dev http://127.0.0.1:8787; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b0b0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111'/%3E%3Cpath d='M14 46V30l18-12 18 12v16H38V36H26v10z' fill='%23c9b6ff'/%3E%3C/svg%3E">
+<title>JCC Site Ops</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="description" content="JCC Management site operations for 2 Park Avenue: drawings, punch, RFIs, submittals and daily logs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: field-ops app shell. Desktop = project rail + workspace; phone (≤760px) = top bar + bottom tab bar.
+   Palette = ContentPad liquid theme (navy ground, lilac primary, cyan secondary; red/orange/green keep their meanings). */
+:root{
+  --bg:#050611; --bg2:#0b0d1d; --bg3:#121530; --bg4:#1a1e3f;
+  --bd:rgba(184,168,255,.14); --bd2:rgba(184,168,255,.28);
+  --tx:#eceaff; --mid:#b4b2d6; --dim:#7f7ea6;
+  --lilac:#b8a8ff; --lilac-ink:#14102e; --cyan:#22d3ee; --blue:#6b8cff;
+  --red:#ff5d6c; --orange:#ffa94d; --green:#2dbd78; --purple:#d08cff; --gold:#e3c26a;
+  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(107,140,255,.22), transparent 70%);
+  --plan-bg:#0c1028; --plan-line:#9aa3dc; --plan-soft:rgba(154,163,220,.35); --plan-room:rgba(184,168,255,.06);
+  --fd:'Bebas Neue',Impact,'Arial Narrow',sans-serif;
+  --fb:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --fm:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --r:12px; --r2:8px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#f3f2fb; --bg2:#ffffff; --bg3:#ebe9f8; --bg4:#dedbf3;
+  --bd:rgba(40,30,110,.12); --bd2:rgba(40,30,110,.24);
+  --tx:#14122b; --mid:#45436b; --dim:#6e6c92;
+  --lilac:#5b47d6; --lilac-ink:#ffffff; --cyan:#0e8fa6; --blue:#3557d8;
+  --red:#d43145; --orange:#c26a0b; --green:#14895a; --purple:#9a3fd0; --gold:#9a7a12;
+  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(91,71,214,.12), transparent 70%);
+  --plan-bg:#ffffff; --plan-line:#2c2f5c; --plan-soft:rgba(44,47,92,.28); --plan-room:rgba(91,71,214,.05);
+  color-scheme:light;
+}}
+:root[data-theme="light"]{
+  --bg:#f3f2fb; --bg2:#ffffff; --bg3:#ebe9f8; --bg4:#dedbf3;
+  --bd:rgba(40,30,110,.12); --bd2:rgba(40,30,110,.24);
+  --tx:#14122b; --mid:#45436b; --dim:#6e6c92;
+  --lilac:#5b47d6; --lilac-ink:#ffffff; --cyan:#0e8fa6; --blue:#3557d8;
+  --red:#d43145; --orange:#c26a0b; --green:#14895a; --purple:#9a3fd0; --gold:#9a7a12;
+  --glow:radial-gradient(1200px 520px at 50% -180px, rgba(91,71,214,.12), transparent 70%);
+  --plan-bg:#ffffff; --plan-line:#2c2f5c; --plan-soft:rgba(44,47,92,.28); --plan-room:rgba(91,71,214,.05);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);background-image:var(--glow);background-repeat:no-repeat;color:var(--tx);font:15px/1.5 var(--fb);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-size:16px;background:var(--bg3);border:1px solid var(--bd2);border-radius:var(--r2);padding:10px 12px;width:100%;min-width:0}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--lilac);outline-offset:1px;border-color:transparent}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+a{color:var(--cyan)}
+h1,h2,h3{text-wrap:balance;margin:0}
+.mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
+.dim{color:var(--dim)} .mid{color:var(--mid)}
+.eyebrow{font:600 11px/1.2 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.disp{font-family:var(--fd);letter-spacing:.03em;font-weight:400}
+
+/* Buttons & chips */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--bd2);background:var(--bg3);cursor:pointer;font-weight:600;font-size:14px;white-space:nowrap;text-decoration:none;color:var(--tx)}
+.btn:hover{border-color:var(--lilac)}
+.btn.pri{background:var(--lilac);color:var(--lilac-ink);border-color:transparent}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.ok{background:var(--green);color:#04150d;border-color:transparent}
+.btn.warn{background:transparent;color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,transparent)}
+.btn.ghost{background:transparent}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font:600 12px/1.4 var(--fb);border:1px solid currentColor;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.c-red{color:var(--red)} .c-orange{color:var(--orange)} .c-cyan{color:var(--cyan)} .c-green{color:var(--green)} .c-purple{color:var(--purple)} .c-dim{color:var(--dim)} .c-lilac{color:var(--lilac)} .c-gold{color:var(--gold)} .c-blue{color:var(--blue)}
+.tag{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--bg4);font:600 11px/1.5 var(--fm);color:var(--mid);letter-spacing:.04em}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--bd2);background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:var(--mid)}
+.seg button[aria-pressed="true"]{background:var(--bg4);color:var(--tx);border-color:var(--lilac)}
+
+/* Login */
+#login{min-height:100%;display:grid;place-items:center;padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.login-card{width:100%;max-width:440px;display:grid;gap:22px}
+.brandrow{display:flex;align-items:center;gap:12px}
+.mark{width:44px;height:44px;border-radius:12px;background:var(--lilac);color:var(--lilac-ink);display:grid;place-items:center;font:400 24px/1 var(--fd);flex:none}
+.login-card h1{font:400 44px/0.95 var(--fd);letter-spacing:.02em}
+.login-card form{display:grid;gap:12px;background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px}
+.field{display:grid;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--mid)}
+.err{color:var(--red);font-size:13px;min-height:1.2em}
+.demo-acc{display:grid;gap:8px}
+.demo-acc button{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;min-height:52px;padding:8px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--bg2);cursor:pointer}
+.demo-acc button:hover{border-color:var(--lilac)}
+.demo-acc b{display:block;font-size:14px}
+.demo-acc small{color:var(--dim);font-size:12px}
+.fine{font-size:12px;color:var(--dim)}
+
+/* App shell */
+#app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100%}
+#rail{position:sticky;top:0;height:100vh;height:100dvh;overflow:auto;border-right:1px solid var(--bd);background:color-mix(in srgb,var(--bg2) 80%,transparent);padding:18px 14px calc(18px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:16px}
+.railbrand{display:flex;gap:10px;align-items:center}
+.railbrand .t1{font:400 22px/1 var(--fd);letter-spacing:.04em}
+.railbrand .t2{font-size:11px;color:var(--dim)}
+.projsel{width:100%}
+nav.side{display:grid;gap:2px}
+nav.side button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:0 12px;border-radius:10px;border:0;background:transparent;cursor:pointer;color:var(--mid);font-weight:600;font-size:14px;text-align:left}
+nav.side button:hover{background:var(--bg3);color:var(--tx)}
+nav.side button[aria-current="page"]{background:var(--bg4);color:var(--tx);box-shadow:inset 3px 0 0 var(--lilac)}
+nav.side .count{margin-left:auto;font:600 11px/1 var(--fm);color:var(--dim)}
+nav.side .lock{margin-left:auto;font-size:11px;color:var(--dim)}
+.navgroup{font:600 10px/1 var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:10px 12px 4px}
+.ico{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.whoami{margin-top:auto;display:grid;gap:8px;padding:12px;border:1px solid var(--bd);border-radius:12px;background:var(--bg2)}
+.whoami b{font-size:14px}
+#main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;padding-block:12px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+.topbar .ttl{min-width:0}
+.topbar .ttl h1{font:400 28px/1 var(--fd);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .ttl .sub{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .acts{margin-left:auto;display:flex;gap:8px;align-items:center}
+.demo-band{font:600 11px/1.3 var(--fm);letter-spacing:.06em;color:var(--gold);border:1px dashed color-mix(in srgb,var(--gold) 50%,transparent);border-radius:999px;padding:4px 10px;white-space:nowrap}
+#view{padding-block:20px 40px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));display:grid;gap:20px;align-content:start;min-width:0}
+.mtop,.tabbar{display:none}
+
+/* Panels */
+.panel{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:18px;min-width:0}
+.panel>header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.panel>header h2{font:400 22px/1 var(--fd);letter-spacing:.04em}
+.panel>header .r{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.kpi{padding:14px;border-radius:14px;border:1px solid var(--bd);background:var(--bg2);display:grid;gap:4px;min-width:0;text-align:left;cursor:pointer}
+.kpi:hover{border-color:var(--bd2)}
+.kpi .n{font:400 34px/1 var(--fd);letter-spacing:.02em}
+.kpi .l{font-size:12px;color:var(--mid)}
+.projhead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:end}
+.projhead h2{font:400 clamp(32px,4.4vw,52px)/.92 var(--fd);letter-spacing:.02em}
+.facts{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+.facts div{display:grid;gap:2px}
+.facts dt{font:600 10px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.facts dd{margin:0;font-weight:600;font-size:14px}
+.progress{height:8px;border-radius:99px;background:var(--bg4);overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--lilac),var(--cyan))}
+
+/* Rows / lists */
+.list{display:grid}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 4px;border-top:1px solid var(--bd);cursor:pointer;text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%;min-height:56px}
+.row:first-child{border-top:0}
+.row:hover{background:color-mix(in srgb,var(--bg3) 60%,transparent)}
+.row .num{font:600 12px/1 var(--fm);color:var(--dim);min-width:58px}
+.row .main{min-width:0}
+.row .main b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .main span{display:block;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .side{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.empty{padding:22px;text-align:center;color:var(--dim);border:1px dashed var(--bd2);border-radius:12px;font-size:14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar .grow{flex:1 1 220px;min-width:0}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{font:600 11px/1.2 var(--fm);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);background:var(--bg3)}
+td.num,th.num{text-align:right;font-family:var(--fm);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.lvl{font:600 11px/1 var(--fm);padding:4px 7px;border-radius:6px;display:inline-block}
+.lvl.l0{color:var(--dim);background:transparent;border:1px dashed var(--bd2)}
+.lvl.l1{color:var(--cyan);background:color-mix(in srgb,var(--cyan) 12%,transparent)}
+.lvl.l2{color:var(--lilac);background:color-mix(in srgb,var(--lilac) 14%,transparent)}
+.lvl.l3{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
+
+/* Plans */
+.plans{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;align-items:start}
+.sheets{display:grid;gap:6px}
+.sheet-btn{display:grid;gap:2px;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg2);cursor:pointer;min-height:56px}
+.sheet-btn[aria-pressed="true"]{border-color:var(--lilac);background:var(--bg3)}
+.sheet-btn b{font:600 13px/1.2 var(--fm)}
+.sheet-btn span{font-size:12px;color:var(--dim)}
+.planbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.planwrap{overflow:auto;border:1px solid var(--bd);border-radius:14px;background:var(--plan-bg);max-height:72vh;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.plancanvas{position:relative;width:100%;aspect-ratio:1000/640;transform-origin:0 0}
+.plancanvas svg,.plancanvas img.sheetimg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.plancanvas img.sheetimg{object-fit:contain;background:#fff}
+.plancanvas.dropping{cursor:crosshair}
+.pin{position:absolute;transform:translate(-50%,-100%);width:44px;height:44px;display:grid;place-items:end center;background:transparent;border:0;cursor:pointer;padding:0}
+.pin i{display:grid;place-items:center;width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:currentColor;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.pin i span{transform:rotate(45deg);font:700 10px/1 var(--fm);color:#0b0b14}
+.pin:hover i{outline:2px solid var(--tx)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mid)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:currentColor;display:inline-block}
+.drop-hint{font-size:13px;color:var(--gold)}
+
+/* Drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(3,4,12,.55);z-index:70}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);z-index:80;background:var(--bg2);border-left:1px solid var(--bd2);display:flex;flex-direction:column;box-shadow:-24px 0 60px rgba(0,0,0,.35)}
+.drawer header{display:flex;gap:12px;align-items:flex-start;padding:calc(16px + env(safe-area-inset-top,0px)) max(18px,env(safe-area-inset-right,0px)) 14px 18px;border-bottom:1px solid var(--bd)}
+.drawer header h3{font:400 26px/1 var(--fd);letter-spacing:.03em}
+.drawer .body{overflow:auto;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 18px;display:grid;gap:18px;align-content:start}
+.x{margin-left:auto;width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--bd2);background:transparent;cursor:pointer;font-size:20px;line-height:1}
+.kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.kv div{display:grid;gap:2px;min-width:0}
+.kv dt{font:600 10px/1 var(--fm);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.kv dd{margin:0;font-size:14px;overflow-wrap:anywhere}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.bic{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--lilac) 10%,transparent);border:1px solid color-mix(in srgb,var(--lilac) 30%,transparent);font-size:14px}
+.bic .ball{width:12px;height:12px;border-radius:50%;background:var(--lilac);flex:none}
+.timeline{display:grid;gap:12px}
+.ev{display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--fm);background:var(--bg4);color:var(--mid);flex:none}
+.ev .meta{font-size:12px;color:var(--dim)}
+.ev .txt{font-size:14px;overflow-wrap:anywhere;white-space:pre-wrap}
+.ev.official .txt{border-left:3px solid var(--green);padding-left:10px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;border:1px solid var(--bd)}
+.composer{display:grid;gap:8px}
+.steps{display:grid;gap:0}
+.step{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--bd)}
+.step:first-child{border-top:0}
+.step .dot{width:14px;height:14px;border-radius:50%;margin-top:3px;border:2px solid currentColor}
+.step.done .dot{background:currentColor}
+.modal{position:fixed;z-index:90;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 24px));max-height:calc(100% - 40px);overflow:auto;background:var(--bg2);border:1px solid var(--bd2);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.modal form{display:grid;gap:14px;padding:20px}
+.modal h3{font:400 28px/1 var(--fd);letter-spacing:.03em}
+.f2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cred{padding:14px;border-radius:12px;background:var(--bg3);border:1px dashed var(--bd2);font-family:var(--fm);font-size:14px;display:grid;gap:4px;user-select:all}
+#toasts{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;width:min(420px,calc(100% - 32px));pointer-events:none}
+.toast{background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.toast.bad{background:var(--red);color:#fff}
+.alert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg3);font-size:14px}
+.alert .s{width:4px;align-self:stretch;border-radius:4px;background:currentColor}
+.rules{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;color:var(--mid)}
+.log-day{display:grid;gap:16px}
+.mp-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;align-items:center}
+.locked{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;border:1px solid color-mix(in srgb,var(--green) 40%,transparent);color:var(--green);font-size:14px;font-weight:600}
+.money{font:400 30px/1 var(--fd);letter-spacing:.02em}
+.bar3{display:flex;height:12px;border-radius:99px;overflow:hidden;background:var(--bg4)}
+.bar3 i{display:block;height:100%}
+
+/* Drawings */
+.drawings{display:grid;grid-template-columns:200px minmax(0,1fr) 320px;gap:16px;align-items:start}
+.dpanel{display:grid;gap:16px;align-content:start;max-height:calc(100vh - 140px);overflow:auto}
+.mkbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 12px;margin-bottom:10px;border:1px solid var(--lilac);border-radius:12px;background:color-mix(in srgb,var(--lilac) 8%,var(--bg2))}
+.swatches{display:flex;gap:6px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--tx);box-shadow:0 0 0 2px var(--bg2) inset}
+.mk-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.plancanvas.marking .mk-layer{pointer-events:auto;touch-action:none;cursor:crosshair}
+.plancanvas.marking .pin,.plancanvas.marking .cpin{pointer-events:none;opacity:.55}
+.superseded{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-18deg);font:400 clamp(28px,6vw,72px)/1 var(--fd);letter-spacing:.08em;color:var(--red);opacity:.28;white-space:nowrap;pointer-events:none;border:4px solid currentColor;padding:6px 18px}
+.cpin{position:absolute;transform:translate(-50%,-100%);min-width:44px;height:44px;display:grid;place-items:end center;background:transparent;border:0;cursor:pointer;padding:0}
+.cpin span{display:grid;place-items:center;min-width:30px;height:26px;padding:0 6px;border-radius:13px 13px 13px 3px;background:var(--pc);color:#0b0b14;font:700 10px/1 var(--fm);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.cpin.flash span{animation:flash 1.2s ease-in-out 2}
+@keyframes flash{50%{transform:scale(1.5);box-shadow:0 0 0 8px color-mix(in srgb,var(--pc) 40%,transparent)}}
+.cpin-key{display:inline-block;width:14px;height:12px;border-radius:7px 7px 7px 2px;background:var(--cyan)}
+.mkrow{display:grid;grid-template-columns:12px minmax(0,1fr);gap:4px 10px;padding:10px 0;border-top:1px solid var(--bd)}
+.mkrow:first-child{border-top:0}
+.mkrow .dot{width:12px;height:12px;border-radius:50%;margin-top:4px}
+.mkrow .actions{grid-column:2}
+/* Notifications */
+.bell{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid var(--bd2);background:var(--bg3);cursor:pointer;display:grid;place-items:center;color:var(--tx);flex:none}
+.bell:hover{border-color:var(--lilac)}
+.bell .bdg{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--red);color:#fff;font:700 11px/20px var(--fm);padding:0 5px;text-align:center}
+.nlist{display:grid}
+.nrow{display:grid;grid-template-columns:32px minmax(0,1fr) 10px;gap:10px;align-items:start;padding:12px 6px;border:0;border-top:1px solid var(--bd);background:transparent;text-align:left;cursor:pointer;width:100%;color:var(--tx)}
+.nrow:first-child{border-top:0}
+.nrow:hover{background:var(--bg3)}
+.nrow.unread{background:color-mix(in srgb,var(--lilac) 7%,transparent)}
+.nrow .main{display:grid;gap:2px;min-width:0}
+.nrow .nt{font-size:14px;overflow-wrap:anywhere}
+.nrow .nb{font-size:13px;color:var(--mid);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.nrow .nm{font-size:12px;color:var(--dim)}
+.udot{width:10px;height:10px;border-radius:50%;background:var(--lilac);margin-top:6px}
+.prefs{display:grid;gap:4px}
+.pref{display:flex;gap:12px;align-items:flex-start;min-height:44px;padding:8px 0;cursor:pointer;flex-wrap:wrap}
+.pref input[type=checkbox]{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--lilac)}
+.pref span{display:grid;gap:2px;min-width:0;flex:1}
+.pref b{font-size:14px;font-weight:600}
+@media (max-width:1180px){ .drawings{grid-template-columns:200px minmax(0,1fr)} .dpanel{grid-column:1/-1;max-height:none} }
+@media (max-width:1180px){ .kpis{grid-template-columns:repeat(3,minmax(0,1fr))} .grid3{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:760px){
+  #app{grid-template-columns:minmax(0,1fr)}
+  #rail{display:none}
+  .topbar{display:none}
+  .mtop{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;align-items:center;gap:10px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+  .mtop select{flex:1;min-width:0;font-weight:600}
+  .mtop .av{width:40px;height:40px}
+  #view{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));gap:16px}
+  .tabbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:40;background:color-mix(in srgb,var(--bg2) 96%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--bd2);padding:6px max(6px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+  .tabbar button{display:grid;justify-items:center;gap:2px;min-height:52px;border:0;background:transparent;color:var(--dim);font-size:11px;font-weight:600;cursor:pointer;border-radius:10px;position:relative}
+  .tabbar button[aria-current="page"]{color:var(--lilac)}
+  .tabbar .ico{width:22px;height:22px}
+  .tabbar .badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font:700 10px/18px var(--fm);padding:0 4px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid2,.grid3{grid-template-columns:minmax(0,1fr)}
+  .projhead{grid-template-columns:minmax(0,1fr)}
+  .plans,.drawings{grid-template-columns:minmax(0,1fr)}
+  .mkbar .actions{margin-left:0!important}
+  .sheets{grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);overflow-x:auto;padding-bottom:4px}
+  .planwrap{max-height:62vh}
+  .panel{padding:14px;border-radius:14px}
+  .f2,.kv{grid-template-columns:minmax(0,1fr)}
+  .mp-row{grid-template-columns:minmax(0,1fr) 70px 70px 44px}
+  .drawer{width:100%;border-left:0}
+  .row{grid-template-columns:minmax(0,1fr) auto}
+  .row .num{display:none}
+}
+@media (prefers-reduced-motion:no-preference){ .drawer{animation:slide .18s ease-out} .modal{animation:pop .16s ease-out} @keyframes slide{from{transform:translateX(24px);opacity:.4}} @keyframes pop{from{transform:translate(-50%,-48%);opacity:.5}} }
+</style>
+</head>
+<body>
+
+<div id="login" hidden>
+  <div class="login-card">
+    <div class="brandrow">
+      <div class="mark">JC</div>
+      <div><div class="eyebrow">JCC Management · 2 Park Avenue</div><div class="fine">Powered by ContentPad</div></div>
+    </div>
+    <div>
+      <h1>Site Ops</h1>
+      <p class="mid" style="margin:8px 0 0">Plans, punch, RFIs, submittals, daily logs and building permits for every job in the building. Contractors, architects and the owner's team sign in here. No ContentPad membership needed.</p>
+    </div>
+    <form id="loginForm" autocomplete="on" novalidate>
+      <div class="field"><label for="lgEmail">Work email</label><input id="lgEmail" type="email" inputmode="email" autocomplete="username" placeholder="you@company.com" required></div>
+      <div class="field"><label for="lgPin">6-digit access PIN</label><input id="lgPin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" required></div>
+      <div class="err" id="lgErr" role="alert"></div>
+      <button class="btn pri" type="submit">Sign in</button>
+      <p class="fine" style="margin:0">Your PIN came in your invite email from JCC Management. Lost it? Enter your email above and tap "Email me a new PIN". A new PIN signs you out on other devices.</p>
+    </form>
+    <div class="demo-acc"><button class="btn ghost" type="button" id="forgotPin">Email me a new PIN</button><p class="fine" id="forgotMsg" style="margin:0" aria-live="polite"></p></div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <aside id="rail">
+    <div class="railbrand"><div class="mark">JC</div><div><div class="t1">Site Ops</div><div class="t2">JCC Management · 2 Park Ave</div></div></div>
+    <div class="field"><label for="projSel" class="eyebrow">Project</label><select id="projSel" class="projsel"></select></div>
+    <nav class="side" id="sideNav" aria-label="Sections"></nav>
+    <div class="whoami" id="whoami"></div>
+  </aside>
+  <main id="main">
+    <div class="mtop"><div class="mark" style="width:40px;height:40px;font-size:20px">JC</div><label for="projSelM" class="eyebrow" hidden>Project</label><select id="projSelM" aria-label="Project"></select><button class="bell" id="bellBtnM" aria-label="Notifications"></button><button class="av" id="meBtn" aria-label="Account"></button></div>
+    <div class="topbar"><div class="ttl"><h1 id="viewTitle">Home</h1><div class="sub" id="viewSub"></div></div><div class="acts"><span id="topActs" class="acts"></span><button class="bell" id="bellBtn" aria-label="Notifications"></button></div></div>
+    <div id="view"></div>
+  </main>
+  <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+</div>
+<div id="layer"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   JCC Site Ops — working demo.
+   Data model mirrors the production plan (see build plan):
+     projects  → public.agency_projects (category 'construction', workspace = JCC)
+     users     → public.site_users        (new; worker-only, no anon)
+     items     → public.site_items        (new; one table, kind = field|rfi|submittal|log|co|permit|coi|booking|sheet)
+     events    → public.site_item_events  (new; comments, status changes, responses)
+     companies → public.organizations
+     locations → public.space_units (same unit codes + x/y % as ContentPad Spaces)
+   ============================================================ */
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => p + '_' + Math.random().toString(36).slice(2, 9);
+const TODAY = (() => { const d = new Date(); d.setHours(12,0,0,0); return d; })();
+const dOff = n => { const d = new Date(TODAY); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const tsOff = (n, h = 9) => { const d = new Date(TODAY); d.setDate(d.getDate() + n); d.setHours(h, 15, 0, 0); return d.toISOString(); };
+const fmtD = s => { if (!s) return '—'; const d = new Date(s.length === 10 ? s + 'T12:00:00' : s); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+const fmtDT = s => { const d = new Date(s); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+const daysTo = s => Math.round((new Date(s + 'T12:00:00') - TODAY) / 864e5);
+const money = n => (n < 0 ? '−' : '') + '$' + Math.abs(Math.round(n)).toLocaleString('en-US');
+const initials = n => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+/* ---------- Roles & permissions (Procore-style: None / Read / Standard / Admin per tool) ---------- */
+const TOOLS = [
+  ['field', 'Punch & Tasks'], ['plans', 'Drawings'], ['rfi', 'RFIs'], ['submittal', 'Submittals'],
+  ['log', 'Daily Log'], ['changes', 'Change Orders'], ['building', 'Building Ops'], ['directory', 'Directory']
+];
+const LVL = ['None', 'Read', 'Standard', 'Admin'];
+const ROLES = {
+  admin:  { label: 'Platform Admin',       p: { field:3, plans:3, rfi:3, submittal:3, log:3, changes:3, building:3, directory:3 } },
+  pm:     { label: 'Project Manager',      p: { field:3, plans:3, rfi:3, submittal:3, log:3, changes:3, building:3, directory:3 } },
+  super:  { label: 'Superintendent',       p: { field:3, plans:2, rfi:2, submittal:1, log:3, changes:1, building:3, directory:1 } },
+  sub:    { label: 'Subcontractor',        p: { field:2, plans:2, rfi:2, submittal:2, log:0, changes:0, building:2, directory:1 } },
+  design: { label: 'Architect / Engineer', p: { field:1, plans:3, rfi:2, submittal:2, log:0, changes:1, building:0, directory:1 } },
+  owner:  { label: "Owner's Rep",          p: { field:1, plans:2, rfi:1, submittal:1, log:1, changes:2, building:1, directory:1 } },
+  // Tenant / client: locked to the projects shared with them. These are CEILINGS — what JCC ticks when sharing can only lower them.
+  tenant: { label: 'Tenant / Client',      p: { field:1, plans:2, rfi:1, submittal:1, log:1, changes:1, building:0, directory:0 } }
+};
+
+const FIELD_STATUS = {
+  open:         { l: 'Open',             c: 'red' },
+  in_progress:  { l: 'In progress',      c: 'orange' },
+  ready_review: { l: 'Ready for review', c: 'cyan' },
+  not_accepted: { l: 'Not accepted',     c: 'purple' },
+  closed:       { l: 'Closed',           c: 'green' }
+};
+const RFI_STATUS = { draft: { l: 'Draft', c: 'dim' }, open: { l: 'Open', c: 'orange' }, answered: { l: 'Answered', c: 'cyan' }, closed: { l: 'Closed', c: 'green' } };
+const SUB_STATUS = {
+  closed: { l: 'Closed (for record)', c: 'cyan' }, draft: { l: 'Draft', c: 'dim' }, open: { l: 'In review', c: 'orange' }, approved: { l: 'Approved', c: 'green' },
+  approved_noted: { l: 'Approved as noted', c: 'cyan' }, revise: { l: 'Revise & resubmit', c: 'purple' }, rejected: { l: 'Rejected', c: 'red' }
+};
+const CO_STATUS = { draft: { l: 'Draft', c: 'dim' }, pending: { l: 'Pending owner', c: 'orange' }, approved: { l: 'Approved', c: 'green' }, rejected: { l: 'Rejected', c: 'red' } };
+const BOOK_STATUS = { pending: { l: 'Pending', c: 'orange' }, approved: { l: 'Approved', c: 'green' }, denied: { l: 'Denied', c: 'red' } };
+const PRI = { high: { l: 'High', c: 'red' }, med: { l: 'Medium', c: 'orange' }, low: { l: 'Low', c: 'dim' } };
+const pill = (map, k) => { const s = map[k] || { l: k, c: 'dim' }; return `<span class="pill c-${s.c}">${esc(s.l)}</span>`; };
+
+/* ---------- Floor 20 rooms: same unit codes and x/y (% of plate) as ContentPad Spaces /spaces/2-park-ave ---------- */
+let ROOMS = [
+  ['2062','North Window Office',46.5,6.4],['2020','South Window Office',44.2,90.5],['2040','West Window Office',6.6,58.5],
+  ['2050','Northwest Corner',7.2,17.2],['2004','Southeast Corner',93,92.4],['20E','East Executive',94,52],
+  ['NE','Northeast Office',89.6,18.2],['2057','North Interior Office',35.2,23.6],['2010','South Interior Office',66.5,73.8],
+  ['OWA','Open Work Area',90.6,36.4],['20C','Conference 20C',73.2,22.6],['20A','Conference 20A',91.4,60.2],
+  ['PB','Phone Booths & Huddle',79.6,35],['TVL','TV Lounge',19.8,55.6],['PAN','Floor 20 Pantry',50.4,63.6]
+];
+const nearestRoom = (x, y) => !ROOMS.length ? null : ROOMS.reduce((b, r) => { const d = (r[2]-x)**2 + (r[3]-y)**2; return d < b.d ? { d, r } : b; }, { d: 1e9, r: null }).r;
+const roomName = code => { const r = ROOMS.find(r => r[0] === code); return r ? r[1] : code; };
+
+function bicField(f, users = DB.users) {
+  if (f.status === 'closed') return [];
+  if (f.status === 'ready_review') return [f.created_by];
+  return users.filter(u => u.company === f.company && u.status === 'active').map(u => u.id);
+}
+function bicSub(s) { if (['approved', 'approved_noted', 'rejected'].includes(s.status)) return []; if (s.status === 'revise') return [s.steps[0].uid]; const cur = s.steps.find(x => x.st === 'pending'); return cur ? [cur.uid] : []; }
+
+/* ---------- Live data layer: everything comes from and goes to cpd-api /site/* ---------- */
+const API = (location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? 'http://127.0.0.1:8787' : 'https://cpd-api.dex-fe2.workers.dev';
+const TOKEN_KEY = 'jcc_siteops_token';
+let TOKEN = null, NOTIFS = [], UNREAD = 0, SERVER_ME = null, SYNCING = false;
+let DB = { users: [], companies: [], projects: [], sheets: [], items: [], permits: [], cois: [], bookings: [], events: [], markups: [] };
+class SignedOut extends Error {}
+async function api(path, body = {}) {
+  let r;
+  try { r = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: TOKEN, ...body }) }); }
+  catch (e) { throw new Error('Could not reach ContentPad. Check your connection and try again.'); }
+  let d = {}; try { d = await r.json(); } catch (e) {}
+  if (r.status === 401 && path !== '/site/login') { signOut(true); throw new SignedOut('signed out'); }
+  if (!r.ok || d.error) throw new Error(d.error || d.message || `Something went wrong (${r.status}).`);
+  return d;
+}
+const fileUrl = id => id ? `${API}/site/file/${id}?t=${encodeURIComponent(TOKEN || '')}` : '';
+const TOOLMAP = { field: 'field', plans: 'plans', rfi: 'rfi', submittal: 'submittal', log: 'log', changes: 'co', building: 'building', directory: 'directory' };
+const permsFromServer = p => { const o = {}; for (const [k, s] of Object.entries(TOOLMAP)) o[k] = p && p[s] != null ? +p[s] : 0; return o; };
+const permsToServer = p => { const o = {}; for (const [k, s] of Object.entries(TOOLMAP)) if (p[k] != null) o[s] = p[k]; return o; };
+function mapAll(bs) {
+  const evs = bs.events || [];
+  const fileEvs = evs.filter(e => e.kind === 'file' && e.data && e.data.uploaded);
+  const photosOf = id => fileEvs.filter(e => e.item_id === id && /^image\//.test(e.data.mime || '')).map(e => fileUrl(e.id));
+  const orgs = (bs.orgs || []).map(o => ({ id: o.id, name: o.name, trade: o.category || '' }));
+  const users = (bs.people || []).map(p => ({ id: p.id, name: p.name, email: p.email || '', role: p.role, company: p.organization_id || ('co_' + p.id), title: p.title || '', status: p.status === 'off' ? 'off' : 'active', invited: p.status === 'invited', projects: p.project_ids || [], perms: p.role === 'tenant' ? permsFromServer(p.perms) : null }));
+  users.forEach(u => { if (!orgs.find(o => o.id === u.company)) { const p = (bs.people || []).find(x => x.id === u.id); orgs.push({ id: u.company, name: (p && p.company_name) || 'Independent', trade: '' }); } });
+  const me = bs.user;
+  let meU = users.find(u => u.id === me.id);
+  if (!meU) { meU = { id: me.id, name: me.name, email: me.email, role: me.role, company: me.organization_id || 'co_me', title: me.title || '', status: 'active', projects: me.project_ids || [] }; users.push(meU); if (!orgs.find(o => o.id === meU.company)) orgs.push({ id: meU.company, name: me.company_name || '—', trade: '' }); }
+  meU.perms = permsFromServer(bs.perms); meU.prefs = me.notif_prefs || {}; meU.notifSeen = me.notif_seen_at || '';
+  meU.projects = me.project_ids || [];
+  const projects = (bs.projects || []).map(p => { const d = p.details || {}; return { id: p.id, name: p.name, client: p.client || '', status: p.status || 'active', start: d.start || '', finish: d.finish || p.due_date || '', contract: +d.contract || 0, progress: +p.progress || 0, floor: d.floor || '', dob: d.dob_job || '—', scope: d.scope || '', space_page: d.space_page || '' }; });
+  ROOMS = (bs.rooms || []).filter(r => r.x != null && r.y != null).map(r => [r.unit_code, r.name || r.unit_code, +r.x, +r.y]);
+  const items = [], sheets = [], permits = [], cois = [], bookings = [], draftSheets = [];
+  const subN = {};
+  (bs.items || []).slice().sort((a, b) => a.created_at.localeCompare(b.created_at)).forEach(it => {
+    const d = it.data || {}, base = { id: it.id, pid: it.project_id, kind: it.kind, status: it.status, bic: it.bic || [], created_by: it.created_by_user, created_at: it.created_at };
+    const loc = it.location || {};
+    if (it.kind === 'field') items.push({ ...base, num: it.number, type: d.type || 'Punch', title: it.title, desc: d.desc || '', pri: it.priority || 'med', company: it.organization_id, due: it.due_on || '', loc: { sheet: loc.sheet_id || null, unit: loc.unit_code || '', x: loc.x, y: loc.y }, photos: photosOf(it.id) });
+    else if (it.kind === 'rfi') items.push({ ...base, num: it.number, title: it.title, question: d.question || '', suggestion: d.suggestion || '', ref: it.ref || '—', manager: d.manager, assignees: d.assignees || [], due: it.due_on || '', cost: d.cost || 'TBD', sched: d.sched || 'TBD' });
+    else if (it.kind === 'submittal') { const k = it.project_id + '|' + it.ref; subN[k] = (subN[k] || 0) + 1; items.push({ ...base, spec: it.ref || '—', n: subN[k], title: it.title, type: d.type || 'Product data', company: it.organization_id, rev: d.rev || 0, due: it.due_on || '', steps: (d.steps || []).map(s => ({ uid: s.uid, role: s.role, st: s.st, at: s.at, note: s.note })) }); }
+    else if (it.kind === 'co') items.push({ ...base, num: it.number, title: it.title, amount: +d.amount || 0, days: +d.days || 0, reason: d.reason || '—', decided_by: d.decided_by, decided_at: d.decided_at });
+    else if (it.kind === 'log') items.push({ ...base, date: d.date || it.title, weather: d.weather || { temp: '', cond: '', wind: '' }, manpower: d.manpower || [], work: d.work || '', deliveries: d.deliveries || '', visitors: d.visitors || '', safety: d.safety || '', delays: d.delays || '', signed_by: d.signed_by, signed_at: d.signed_at, photos: photosOf(it.id) });
+    else if (it.kind === 'sheet') (d.revs && d.revs.length ? sheets : draftSheets).push({ id: it.id, pid: it.project_id, code: it.ref, title: it.title, disc: d.discipline || 'Other', rev: d.rev ?? -1, revs: (d.revs || []).map(r => ({ rev: r.rev, at: r.at, note: r.note, set: r.set, by: r.by, img: fileUrl(r.file_id) })), bic: [] });
+    else if (it.kind === 'permit') permits.push({ id: it.id, kind: 'permit', pid: it.project_id, job: it.title, type: d.type || '', scope: d.scope || '', status: d.status_text || '', expires: it.due_on || '' });
+    else if (it.kind === 'coi') cois.push({ id: it.id, kind: 'coi', company: it.organization_id, carrier: d.carrier || '', gl: d.gl || '', umb: d.umb || '', wc: d.wc || '', expires: it.due_on || '', addl: !!d.addl, bic: [] });
+    else if (it.kind === 'booking') bookings.push({ id: it.id, kind: 'booking', type: d.type || 'Freight elevator', date: d.date || '', start: d.start || '', end: d.end || '', company: it.organization_id, pid: it.project_id, purpose: it.title, status: it.status, requested_by: it.created_by_user, ahv: d.ahv || '', bic: it.bic || [] });
+  });
+  const events = [], markups = [];
+  evs.forEach(e => {
+    if (e.kind === 'markup') { markups.push({ id: e.id, sheet: e.item_id, rev: (e.data || {}).rev || 0, uid: e.actor_user_id, at: e.created_at, vis: e.visibility, shapes: (e.data || {}).shapes || [], note: (e.data || {}).note || '' }); }
+    if (e.kind === 'file' && (sheets.find(s => s.id === e.item_id) || draftSheets.find(s => s.id === e.item_id))) return;
+    if (e.kind === 'file' && !(e.data && e.data.uploaded)) return;
+    events.push({ id: e.id, item: e.item_id, uid: e.actor_user_id, at: e.created_at, kind: e.kind, body: e.body || '', official: !!e.official, loc: (e.data || {}).loc, vis: e.visibility, photo: e.kind === 'file' && /^image\//.test((e.data || {}).mime || '') ? fileUrl(e.id) : undefined });
+  });
+  DB = { users, companies: orgs, projects, sheets, draftSheets, items, permits, cois, bookings, events, markups };
+  ME = meU;
+}
+async function syncNotifs() { try { const n = await api('/site/notifications', { limit: 80 }); NOTIFS = n.events || []; UNREAD = n.unread || 0; } catch (e) { if (e instanceof SignedOut) throw e; } }
+async function sync() {
+  const bs = await api('/site/bootstrap', { project_id: PID });
+  SERVER_ME = bs.user; mapAll(bs); PID = bs.project_id || null;
+  await syncNotifs();
+}
+// Do a write, reload from the server, then redraw. Returns null on failure (and shows why).
+async function mutate(fn, okMsg, after) {
+  if (SYNCING) return null; SYNCING = true;
+  try { const r = await fn(); await sync(); if (okMsg) toast(okMsg); renderShell(); renderNav(); if (after) after(r); else refreshBehind(); return r || true; }
+  catch (e) { if (!(e instanceof SignedOut)) toast(e.message || 'Something went wrong.', true); return null; }
+  finally { SYNCING = false; }
+}
+const reopen = id => () => { refreshBehind(); const t = thing(id); if (t && !isSheet(t) && !isProj(t)) openItem(t); };
+function dataUrlToBlob(u) { const [h, b] = u.split(','); const mime = (h.match(/data:([^;]+)/) || [])[1] || 'image/jpeg'; const bin = atob(b); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], { type: mime }); }
+async function uploadBlob(itemId, blob, name, caption) {
+  const init = await api('/site/file/init', { item_id: itemId, name, mime: blob.type, size: blob.size, caption });
+  let r; try { r = await fetch(`${API}${init.put}?t=${encodeURIComponent(TOKEN)}`, { method: 'PUT', headers: { 'Content-Type': blob.type }, body: blob }); } catch (e) { throw new Error('The upload did not go through. Check your connection.'); }
+  if (!r.ok) { let d = {}; try { d = await r.json(); } catch (e) {} throw new Error(d.error || 'The upload did not go through.'); }
+  return init.id;
+}
+async function uploadPhoto(itemId, file, caption) { const url = await shrink(file, 1600); return uploadBlob(itemId, dataUrlToBlob(url), (file.name || 'photo').replace(/\.\w+$/, '') + '.jpg', caption || 'Photo'); }
+let _pdfjs = null;
+function loadPdfJs() {
+  if (_pdfjs) return _pdfjs;
+  _pdfjs = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); }; s.onerror = () => { _pdfjs = null; rej(new Error('Could not load the PDF reader. Try again, or upload the sheet as a PNG or JPG.')); }; document.head.appendChild(s); });
+  return _pdfjs;
+}
+// Drawings: images are shrunk to 2400px; a PDF has its first page rendered to a 2400px JPEG in the browser.
+async function drawingBlob(file) {
+  if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+    const lib = await loadPdfJs(); const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise; const page = await pdf.getPage(1);
+    const v1 = page.getViewport({ scale: 1 }); const scale = Math.min(4, 2400 / Math.max(v1.width, v1.height)); const vp = page.getViewport({ scale });
+    const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height); const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+    return { blob: await new Promise(r => c.toBlob(r, 'image/jpeg', .85)), pages: pdf.numPages };
+  }
+  const url = await shrink(file, 2400); return { blob: dataUrlToBlob(url), pages: 1 };
+}
+
+/* ---------- Session / auth (demo mirrors the Staff Suite portal: email + PIN → scoped session) ---------- */
+let ME = null, PID = null, VIEW = 'home', FILTER = { field: { status: 'active', q: '', type: 'all' }, rfi: 'active', sub: 'active' };
+let PLAN = { sheet: null, zoom: 1, drop: false, filter: 'active' };
+function lvlOf(u, tool) { const base = ROLES[u.role].p[tool] || 0; return u.perms && u.perms[tool] != null ? Math.min(base, u.perms[tool]) : base; }
+function can(tool, lvl = 1) { return !!ME && lvlOf(ME, tool) >= lvl; }
+const userById = id => DB.users.find(u => u.id === id);
+const uname = id => (userById(id) || { name: 'Unknown' }).name;
+const coById = id => DB.companies.find(c => c.id === id) || { name: '—' };
+const proj = () => DB.projects.find(p => p.id === PID);
+const myProjects = () => DB.projects;
+
+function showLogin(msg) {
+  $('#app').hidden = true; $('#login').hidden = false; $('#lgErr').textContent = msg || '';
+}
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#lgEmail').value.trim().toLowerCase(), pin = $('#lgPin').value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email) || !/^\d{6}$/.test(pin)) { $('#lgErr').textContent = 'Enter your work email and the 6-digit PIN from your invite.'; return; }
+  const btn = $('#loginForm button[type=submit]'); btn.disabled = true; $('#lgErr').textContent = '';
+  try {
+    let d = await api('/site/login', { email, pin });
+    if (d.choose && d.choose.length) d = await api('/site/login', { email, pin, workspace_id: d.choose[0].workspace_id });
+    TOKEN = d.token; try { localStorage.setItem(TOKEN_KEY, TOKEN); } catch (er) {}
+    $('#lgPin').value = ''; await enter();
+  } catch (er) { $('#lgErr').textContent = er.message; }
+  finally { btn.disabled = false; }
+});
+$('#forgotPin').onclick = async () => {
+  const email = $('#lgEmail').value.trim().toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(email)) { $('#forgotMsg').textContent = 'Type your work email in the box above first.'; $('#lgEmail').focus(); return; }
+  try { const d = await api('/site/pin-reset', { email }); $('#forgotMsg').textContent = d.message; } catch (er) { $('#forgotMsg').textContent = er.message; }
+};
+async function enter() {
+  await sync();
+  if (!PLAN.sheet) PLAN.sheet = (DB.sheets.find(s => s.pid === PID) || {}).id || null;
+  VIEW = 'home'; $('#login').hidden = true; $('#app').hidden = false; renderShell(); render();
+  if (UNREAD) toast(`${UNREAD} new notification${UNREAD === 1 ? '' : 's'} since you last looked`);
+}
+function signOut(expired) { ME = null; TOKEN = null; try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} closeLayer(); showLogin(expired === true ? 'Your session ended. Sign in again.' : ''); }
+async function resume() {
+  try { TOKEN = localStorage.getItem(TOKEN_KEY); } catch (e) { TOKEN = null; }
+  if (!TOKEN) return showLogin();
+  try { await enter(); } catch (e) { if (!(e instanceof SignedOut)) showLogin(e.message); }
+}
+// Keep the bell fresh, and pick up other people's changes when the tab comes back.
+setInterval(async () => { if (!TOKEN || !ME || document.hidden) return; try { const before = UNREAD; await syncNotifs(); if (UNREAD !== before) renderNav(); } catch (e) {} }, 45000);
+document.addEventListener('visibilitychange', async () => { if (document.hidden || !TOKEN || !ME || SYNCING || $('#modalw')) return; try { await sync(); renderShell(); renderNav(); if (!$('#layer').innerHTML) render(); } catch (e) {} });
+
+/* ---------- Icons ---------- */
+const I = {
+  home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/>',
+  plans: '<path d="M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z"/><path d="M9 3v16M15 5v16"/>',
+  field: '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',
+  rfi: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/>',
+  submittal: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 15l2 2 4-4"/>',
+  log: '<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M4 10h16M8 14h5"/>',
+  changes: '<path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  building: '<path d="M4 21V5l8-3 8 3v16"/><path d="M9 21v-4h6v4M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01"/>',
+  directory: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  more: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
+};
+const ico = k => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+const NAV = [
+  ['home', 'Home', null], ['plans', 'Drawings', 'plans'], ['field', 'Punch & Tasks', 'field'], ['rfi', 'RFIs', 'rfi'], ['submittal', 'Submittals', 'submittal'],
+  ['log', 'Daily Log', 'log'], ['changes', 'Change Orders', 'changes'], ['building', 'Building Ops', 'building'], ['directory', 'Directory', 'directory']
+];
+
+/* ---------- Visibility (sub scoping: a subcontractor sees their own company's work) ---------- */
+function items(kind, pid = PID) {
+  let r = DB.items.filter(i => i.kind === kind && i.pid === pid);
+  if (ME.role === 'sub') {
+    if (kind === 'field') r = r.filter(i => i.company === ME.company || i.created_by === ME.id);
+    if (kind === 'submittal') r = r.filter(i => i.company === ME.company);
+    if (kind === 'rfi') r = r.filter(i => i.status !== 'draft' || i.created_by === ME.id);
+  }
+  if ((ME.role === 'design' || ME.role === 'tenant') && kind === 'rfi') r = r.filter(i => i.status !== 'draft');
+  if (ME.role === 'tenant' && kind === 'co') r = r.filter(i => i.status !== 'draft');
+  return r;
+}
+const inMyCourt = () => DB.items.filter(i => i.pid === PID && (i.bic || []).includes(ME.id)).concat(DB.bookings.filter(b => b.pid === PID && (b.bic || []).includes(ME.id) && ['super', 'pm', 'admin'].includes(ME.role)));
+const overdue = i => i.due && daysTo(i.due) < 0 && !['closed', 'approved', 'approved_noted', 'rejected'].includes(i.status);
+const itemLabel = i => i.kind === 'field' ? `${i.type} #${i.num}` : i.kind === 'rfi' ? `RFI-${String(i.num).padStart(3, '0')}` : i.kind === 'submittal' ? `${i.spec}-${i.n}` : i.kind === 'co' ? `CO-${String(i.num).padStart(3, '0')}` : i.kind === 'booking' ? i.type : i.kind;
+const statusPill = i => i.kind === 'field' ? pill(FIELD_STATUS, i.status) : i.kind === 'rfi' ? pill(RFI_STATUS, i.status) : i.kind === 'submittal' ? pill(SUB_STATUS, i.status) : i.kind === 'co' ? pill(CO_STATUS, i.status) : i.kind === 'booking' ? pill(BOOK_STATUS, i.status) : '';
+
+/* ---------- Shell ---------- */
+function renderShell() {
+  const ps = myProjects();
+  const opts = ps.length ? ps.map(p => `<option value="${p.id}" ${p.id === PID ? 'selected' : ''}>${esc(p.name)}</option>`).join('') : '<option value="">No projects yet</option>';
+  $('#projSel').innerHTML = opts; $('#projSelM').innerHTML = opts;
+  $('#projSel').onchange = $('#projSelM').onchange = async e => { PID = e.target.value; try { await sync(); } catch (er) { if (!(er instanceof SignedOut)) toast(er.message, true); return; } PLAN.sheet = (DB.sheets.find(s => s.pid === PID) || {}).id || null; renderShell(); render(); };
+  $('#whoami').innerHTML = `<div class="eyebrow">Signed in</div><b>${esc(ME.name)}</b><span class="dim" style="font-size:12px">${esc(ROLES[ME.role].label)} · ${esc(coById(ME.company).name)}</span><button class="btn sm ghost" id="soBtn">Sign out</button>`;
+  $('#soBtn').onclick = signOut;
+  $('#meBtn').textContent = initials(ME.name); $('#meBtn').onclick = openMe;
+}
+const NAV_GROUP = { plans: 'Field', rfi: 'Project', building: 'Building' };
+function renderNav() {
+  const counts = { field: items('field').filter(i => i.status !== 'closed').length, rfi: items('rfi').filter(i => ['open', 'answered'].includes(i.status)).length, submittal: items('submittal').filter(i => i.status === 'open').length };
+  const shown = NAV.filter(n => !n[2] || can(n[2]));
+  let grp = '';
+  $('#sideNav').innerHTML = shown.map(([k, l]) => {
+    const g = NAV_GROUP[k] || ({ field: 'Field', submittal: 'Project', log: 'Project', changes: 'Project', directory: 'Building' }[k]) || '';
+    const head = g && g !== grp ? `<div class="navgroup">${g}</div>` : ''; if (g) grp = g;
+    return head + `<button data-v="${k}" ${VIEW === k ? 'aria-current="page"' : ''}>${ico(k)}<span>${l}</span>${counts[k] ? `<span class="count">${counts[k]}</span>` : ''}</button>`;
+  }).join('');
+  $$('#sideNav button').forEach(b => b.onclick = () => go(b.dataset.v));
+  const court = inMyCourt().length;
+  const cand = [['plans', 'Drawings'], ['field', 'Punch'], ['log', 'Log'], ['rfi', 'RFIs'], ['submittal', 'Submittals']].filter(([k]) => can(k)).slice(0, 3);
+  const tabs = [['home', 'Home'], ...cand, ['more', 'More']];
+  $('#tabbar').style.gridTemplateColumns = `repeat(${tabs.length},minmax(0,1fr))`;
+  $('#tabbar').innerHTML = tabs.map(([k, l]) => `<button data-v="${k}" ${(VIEW === k || (k === 'more' && !tabs.find(t => t[0] === VIEW))) ? 'aria-current="page"' : ''}>${ico(k)}<span>${l}</span>${k === 'home' && court ? `<span class="badge">${court}</span>` : ''}</button>`).join('');
+  $$('#tabbar button').forEach(b => b.onclick = () => b.dataset.v === 'more' ? openMore() : go(b.dataset.v));
+  const n = unreadCount(); const bell = `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I.bell}</svg>${n ? `<span class="bdg">${n > 99 ? '99+' : n}</span>` : ''}`;
+  ['#bellBtn', '#bellBtnM'].forEach(id => { const b = $(id); b.innerHTML = bell; b.setAttribute('aria-label', n ? `Notifications, ${n} unread` : 'Notifications'); b.onclick = () => { NF = n ? 'unread' : 'all'; openNotifs(); }; });
+}
+function openMore() {
+  openDrawer('More', `<div class="list">${NAV.filter(n => !n[2] || can(n[2])).map(([k, l]) => `<button class="row" data-v="${k}"><span>${ico(k)}</span><span class="main"><b>${l}</b></span><span class="side dim">›</span></button>`).join('')}</div>`, '', d => $$('.row', d).forEach(b => b.onclick = () => { closeLayer(); go(b.dataset.v); }));
+}
+function openMe() {
+  if (!ME) return;
+  openDrawer(ME.name, `<div class="kv"><div><dt>Role</dt><dd>${esc(ROLES[ME.role].label)}</dd></div><div><dt>Company</dt><dd>${esc(coById(ME.company).name)}</dd></div><div><dt>Email</dt><dd>${esc(ME.email)}</dd></div><div><dt>Projects</dt><dd>${myProjects().length}</dd></div></div>${permTable([ME.role])}<button class="btn" id="so2">Sign out</button>`, 'Account', d => $('#so2', d).onclick = signOut);
+}
+function go(v) { VIEW = v; closeLayer(); render(); window.scrollTo(0, 0); }
+
+const TITLES = { home: 'Home', plans: 'Drawings', field: 'Punch & Tasks', rfi: 'RFIs', submittal: 'Submittals', log: 'Daily Log', changes: 'Change Orders', building: 'Building Ops', directory: 'Directory' };
+function render() {
+  renderNav();
+  const p = proj();
+  $('#viewTitle').textContent = TITLES[VIEW];
+  $('#viewSub').textContent = p ? p.name + ' · 2 Park Avenue, New York' : 'JCC Management · 2 Park Avenue';
+  $('#topActs').innerHTML = topAction();
+  const ta = $('#topActs [data-act]'); if (ta) ta.onclick = () => ACTIONS[ta.dataset.act]();
+  const tool = (NAV.find(n => n[0] === VIEW) || [])[2];
+  if (tool && !can(tool)) { $('#view').innerHTML = `<div class="empty">Your role (${esc(ROLES[ME.role].label)}) does not have access to ${TITLES[VIEW]}. Ask JCC Management if you need it.</div>`; return; }
+  if (!p && VIEW !== 'home') { VIEW = 'home'; renderNav(); }
+  if (!p) return vNoProject();
+  ({ home: vHome, plans: vPlans, field: vField, rfi: vRfi, submittal: vSub, log: vLog, changes: vChanges, building: vBuilding, directory: vDirectory })[VIEW]();
+}
+function topAction() {
+  const m = { field: can('field', 2) && ['New item', 'newField'], rfi: can('rfi', 2) && ['New RFI', 'newRfi'], submittal: can('submittal', 2) && ME.role !== 'design' && ['New submittal', 'newSub'], changes: can('changes', 3) && ['New change order', 'newCo'], directory: can('directory', 3) && ['Invite someone', 'invite'], building: can('building', 2) && ['Request booking', 'newBooking'] }[VIEW];
+  return m ? `<button class="btn pri sm" data-act="${m[1]}">+ ${m[0]}</button>` : '';
+}
+const ACTIONS = { newField: () => fieldForm(), newRfi: () => rfiForm(), newSub: () => subForm(), newCo: () => coForm(), invite: () => inviteForm(), newBooking: () => bookingForm() };
+
+/* ---------- Home ---------- */
+function vHome() {
+  const p = proj(); const f = items('field'), r = items('rfi'), s = items('submittal');
+  const openF = f.filter(i => i.status !== 'closed');
+  const court = inMyCourt();
+  const od = [...f, ...r, ...s].filter(overdue);
+  const cos = items('co'); const appr = cos.filter(c => c.status === 'approved').reduce((a, c) => a + c.amount, 0); const pend = cos.filter(c => c.status === 'pending').reduce((a, c) => a + c.amount, 0);
+  const alerts = buildAlerts();
+  const todayLog = items('log').find(l => l.date === dOff(0));
+  const todayBook = DB.bookings.filter(b => b.date === dOff(0) || b.date === dOff(1)).filter(b => b.pid === PID);
+  const recent = DB.events.filter(e => { const t = thing(e.item); if (!t || (e.kind === 'markup' && e.vis === 'private' && e.uid !== ME.id)) return false; if (e.kind === 'share' && e.target && e.target !== ME.id && !['pm', 'admin', 'super'].includes(ME.role)) return false; const pid = isProj(t) ? t.id : t.pid; return pid === PID && canSeeThing(t); }).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 7);
+  $('#view').innerHTML = `
+  <section class="projhead">
+    <div><div class="eyebrow">${esc(p.client || 'JCC Management')} · ${p.status === 'planning' ? 'Preconstruction' : p.status === 'complete' ? 'Complete' : 'In construction'}${p.dob && p.dob !== '—' ? ' · DOB ' + esc(p.dob) : ''}${p.floor ? ' · Floor ' + esc(p.floor) : ''}</div><h2>${esc(p.name)}</h2>
+      <p class="mid" style="margin:8px 0 0;max-width:68ch">${esc(p.scope)}</p>
+      <dl class="facts"><div><dt>Start</dt><dd>${fmtD(p.start)}</dd></div><div><dt>Substantial completion</dt><dd>${fmtD(p.finish)}${p.finish ? ` <span class="dim">(${daysTo(p.finish)} days)</span>` : ''}</dd></div>${can('changes') ? `<div><dt>Revised contract</dt><dd class="mono">${money(p.contract + appr)}</dd></div>` : ''}<div><dt>Complete</dt><dd class="mono">${p.progress}%</dd></div></dl></div>
+    <div style="min-width:200px;display:grid;gap:10px"><div class="progress" aria-label="${p.progress}% complete"><i style="width:${p.progress}%"></i></div>${ME.role === 'pm' ? '<div class="actions" style="justify-content:flex-end"><button class="btn sm" id="editProj">Edit project</button><button class="btn sm pri" id="newProj">+ New project</button></div>' : ''}</div>
+  </section>
+  <section class="kpis" aria-label="Summary">
+    ${kpi(court.length, 'In your court', 'lilac', 'court')}${kpi(od.length, 'Overdue', od.length ? 'red' : 'green', 'field')}${kpi(openF.length, 'Open punch & tasks', 'orange', 'field')}
+    ${kpi(r.filter(i => ['open', 'answered'].includes(i.status)).length, 'Open RFIs', 'cyan', 'rfi')}${kpi(s.filter(i => i.status === 'open').length, 'Submittals in review', 'blue', 'submittal')}
+    ${can('changes') ? kpi(money(pend), 'Pending change orders', 'gold', 'changes') : can('building') ? kpi(alerts.length, 'Building alerts', alerts.length ? 'orange' : 'green', 'building') : kpi(DB.sheets.filter(x => x.pid === PID).length, 'Current drawings', 'cyan', 'plans')}
+  </section>
+  <div class="grid2">
+    <section class="panel"><header><h2>In your court</h2><span class="dim" style="font-size:13px">Waiting on you</span></header>
+      <div class="list">${court.length ? court.map(rowFor).join('') : '<div class="empty">Nothing is waiting on you right now.</div>'}</div></section>
+    <section class="panel"><header><h2>Today on site</h2><span class="dim mono" style="font-size:13px">${TODAY.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</span></header>
+      <div class="list">
+        ${can('log') ? `<button class="row" data-go="log"><span>${ico('log')}</span><span class="main"><b>Daily log ${todayLog ? (todayLog.status === 'signed' ? 'signed' : 'in progress') : 'not started'}</b><span>${todayLog ? todayLog.manpower.reduce((a, m) => a + (+m.workers || 0), 0) + ' workers · ' + esc(todayLog.weather.cond) + ', ' + todayLog.weather.temp + '°F' : 'Superintendent starts it each morning'}</span></span><span class="side">${todayLog && todayLog.status === 'signed' ? pill({ s: { l: 'Signed', c: 'green' } }, 's') : pill({ s: { l: 'Open', c: 'orange' } }, 's')}</span></button>` : ''}
+        ${todayBook.map(b => `<button class="row" data-book="${b.id}"><span>${ico('building')}</span><span class="main"><b>${esc(b.type)} · ${b.start}–${b.end} ${b.date === dOff(1) ? '(tomorrow)' : ''}</b><span>${esc(coById(b.company).name)} · ${esc(b.purpose)}</span></span><span class="side">${pill(BOOK_STATUS, b.status)}</span></button>`).join('')}
+      </div></section>
+    ${can('building') ? `<section class="panel"><header><h2>Building alerts</h2></header><div class="list" style="gap:8px;display:grid">${alerts.length ? alerts.map(a => `<div class="alert c-${a.c}"><span class="s"></span><div style="color:var(--tx)"><b>${esc(a.t)}</b><div class="dim" style="font-size:13px">${esc(a.d)}</div></div></div>`).join('') : '<div class="empty">No permit or insurance alerts.</div>'}</div></section>` : contactsPanel()}
+    <section class="panel"><header><h2>Recent activity</h2></header><div class="timeline">${recent.length ? recent.map(evRow).join('') : '<div class="empty">No activity yet.</div>'}</div></section>
+    ${ME.role === 'pm' ? sharedPanel() : ''}
+  </div>`;
+  bindRows();
+  $$('.kpi').forEach(k => k.onclick = () => k.dataset.go !== 'court' && go(k.dataset.go));
+  $$('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
+  $$('[data-book]').forEach(b => b.onclick = () => { VIEW = 'building'; render(); });
+  bindShared(); $$('[data-copy]').forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  const ep = $('#editProj'); if (ep) ep.onclick = () => projectForm(proj()); const np = $('#newProj'); if (np) np.onclick = () => projectForm();
+}
+const kpi = (n, l, c, g) => `<button class="kpi" data-go="${g}"><span class="n c-${c}">${n}</span><span class="l">${l}</span></button>`;
+function buildAlerts() {
+  const out = []; if (!can('building')) return out;
+  DB.cois.forEach(c => { const d = daysTo(c.expires); if (ME.role === 'sub' && c.company !== ME.company) return; if (d < 0) out.push({ c: 'red', t: `${coById(c.company).name}: insurance expired ${-d} days ago`, d: 'Bookings and site access are blocked until a current certificate is on file.' }); else if (d <= 30) out.push({ c: 'orange', t: `${coById(c.company).name}: insurance expires in ${d} days`, d: `${c.carrier} · GL ${c.gl}. Request a renewed certificate.` }); });
+  if (ME.role !== 'sub') DB.permits.forEach(p => { const d = daysTo(p.expires); if (d <= 30) out.push({ c: d < 0 ? 'red' : 'orange', t: `${p.job}: ${p.status.toLowerCase()}`, d: `${p.type} · expires ${fmtD(p.expires)} (${d} days)` }); });
+  return out;
+}
+function visibleItem(it) { if (it.kind === 'booking') return true; const tool = { field: 'field', rfi: 'rfi', submittal: 'submittal', log: 'log', co: 'changes' }[it.kind]; return tool && can(tool) && items(it.kind, it.pid).includes(it); }
+function rowFor(i) {
+  const sub = i.kind === 'field' ? `${roomName(i.loc.unit)} · ${coById(i.company).name}` : i.kind === 'rfi' ? `Due ${fmtD(i.due)} · ${i.ref}` : i.kind === 'submittal' ? `${i.type} · Rev ${i.rev} · ${coById(i.company).name}` : i.kind === 'co' ? money(i.amount) + ' · ' + i.reason : i.kind === 'booking' ? `${fmtD(i.date)} ${i.start}–${i.end} · ${coById(i.company).name}` : '';
+  const od = overdue(i) ? '<span class="pill c-red">Overdue</span>' : '';
+  return `<button class="row" data-item="${i.id}" data-kind="${i.kind}"><span class="num">${esc(itemLabel(i))}</span><span class="main"><b>${esc(i.title || i.purpose)}</b><span>${esc(sub)}</span></span><span class="side">${od}${statusPill(i)}</span></button>`;
+}
+function evRow(e) {
+  const it = thing(e.item);
+  return `<div class="ev ${e.official ? 'official' : ''}"><span class="av">${initials(uname(e.uid))}</span><div><div class="meta"><b style="color:var(--mid)">${esc(uname(e.uid))}</b> · ${fmtDT(e.at)}${it ? ` · <a href="#" data-thing="${it.id}">${esc(isSheet(it) ? it.code : isProj(it) ? 'Project' : it.kind === 'booking' ? it.type : it.kind === 'log' ? 'Daily log' : itemLabel(it))}</a>` : ''}${e.official ? ' · <span class="c-green">Official response</span>' : ''}</div><div class="txt">${esc(e.body)}</div>${e.photo ? `<div class="photos" style="margin-top:6px"><img src="${e.photo}" alt="Photo attached by ${esc(uname(e.uid))}"></div>` : ''}</div></div>`;
+}
+function bindRows(root = document) {
+  $$('[data-thing]', root).forEach(a => a.onclick = ev => { ev.preventDefault(); const t = thing(a.dataset.thing); if (t) openThing(t); });
+  $$('[data-item]', root).forEach(b => b.onclick = ev => { ev.preventDefault(); const it = DB.items.find(i => i.id === b.dataset.item); if (it) openItem(it); else { const bk = DB.bookings.find(x => x.id === b.dataset.item); if (bk) openBooking(bk); } });
+}
+function openItem(it) { ({ field: openField, rfi: openRfi, submittal: openSub, co: openCo, log: () => go('log') })[it.kind](it); }
+
+/* ---------- Plans ---------- */
+function planSVG(layer) {
+  const W = 1000, H = 640, X = x => x * 10, Y = y => y * 6.4;
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Floor 20 plan, layer ${layer}"><rect width="${W}" height="${H}" fill="var(--plan-bg)"/>`;
+  const L = 'stroke="var(--plan-line)"', S = 'stroke="var(--plan-soft)"';
+  // perimeter office bands
+  s += `<g fill="var(--plan-room)" ${L} stroke-width="1.4">`;
+  for (let x = 14; x < 86; x += 8) s += `<rect x="${X(x)}" y="${Y(2)}" width="${X(8)}" height="${Y(14)}"/><rect x="${X(x)}" y="${Y(84)}" width="${X(8)}" height="${Y(14)}"/>`;
+  for (let y = 26; y < 76; y += 12) s += `<rect x="${X(1.5)}" y="${Y(y)}" width="${X(11)}" height="${Y(12)}"/>`;
+  s += `<rect x="${X(1.5)}" y="${Y(2)}" width="${X(12.5)}" height="${Y(24)}"/><rect x="${X(86)}" y="${Y(2)}" width="${X(12.5)}" height="${Y(24)}"/><rect x="${X(86)}" y="${Y(78)}" width="${X(12.5)}" height="${Y(20)}"/>`;
+  s += `<rect x="${X(87)}" y="${Y(44)}" width="${X(11.5)}" height="${Y(11)}"/><rect x="${X(84)}" y="${Y(56)}" width="${X(14.5)}" height="${Y(14)}"/>`;
+  s += `<rect x="${X(62)}" y="${Y(17)}" width="${X(20)}" height="${Y(13)}"/><rect x="${X(74)}" y="${Y(30)}" width="${X(10)}" height="${Y(10)}"/>`;
+  s += `<rect x="${X(26)}" y="${Y(17)}" width="${X(18)}" height="${Y(13)}"/><rect x="${X(58)}" y="${Y(66)}" width="${X(18)}" height="${Y(14)}"/>`;
+  s += `<rect x="${X(13)}" y="${Y(46)}" width="${X(15)}" height="${Y(20)}"/><rect x="${X(43)}" y="${Y(58)}" width="${X(14)}" height="${Y(12)}"/></g>`;
+  // core
+  s += `<g ${L} stroke-width="1.4" fill="none"><rect x="${X(36)}" y="${Y(34)}" width="${X(26)}" height="${Y(22)}" fill="var(--plan-room)" stroke-dasharray="0"/>`;
+  for (let i = 0; i < 4; i++) s += `<rect x="${X(38 + i * 5.5)}" y="${Y(37)}" width="${X(4.5)}" height="${Y(7)}"/><path d="M${X(38 + i * 5.5)} ${Y(37)}l${X(4.5)} ${Y(7)}M${X(42.5 + i * 5.5)} ${Y(37)}l${-X(4.5)} ${Y(7)}" ${S}/>`;
+  s += `<rect x="${X(38)}" y="${Y(46)}" width="${X(8)}" height="${Y(8)}"/><rect x="${X(52)}" y="${Y(46)}" width="${X(8)}" height="${Y(8)}"/>`;
+  s += `</g><text x="${X(49)}" y="${Y(52)}" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--plan-line)" opacity=".7">CORE</text>`;
+  // outer wall + columns
+  s += `<rect x="${X(1)}" y="${Y(1.5)}" width="${X(98)}" height="${Y(97)}" fill="none" ${L} stroke-width="5"/>`;
+  for (let x = 1; x <= 99; x += 14) for (const y of [1.5, 50, 98.5]) s += `<rect x="${X(x) - 6}" y="${Y(y) - 6}" width="12" height="12" fill="var(--plan-line)"/>`;
+  if (layer === 'rcp') { s += `<g ${S} stroke-width=".7">`; for (let x = 2; x < 99; x += 2.4) s += `<line x1="${X(x)}" y1="${Y(2)}" x2="${X(x)}" y2="${Y(98)}"/>`; for (let y = 2; y < 99; y += 3.75) s += `<line x1="${X(1)}" y1="${Y(y)}" x2="${X(99)}" y2="${Y(y)}"/>`; s += `</g><g fill="none" ${L} stroke-width="1.2">`; for (let x = 8; x < 95; x += 12) for (let y = 10; y < 95; y += 20) s += `<rect x="${X(x)}" y="${Y(y)}" width="22" height="44"/>`; s += '</g>'; }
+  if (layer === 'elec') { s += `<g ${L} stroke-width="1.4" fill="none">`; for (let x = 16; x < 86; x += 8) { s += `<circle cx="${X(x + 4)}" cy="${Y(14)}" r="6"/><path d="M${X(x + 4) - 3} ${Y(14) - 2}v4M${X(x + 4) + 3} ${Y(14) - 2}v4"/>`; } for (let i = 0; i < 6; i++) s += `<rect x="${X(88 + (i % 2) * 5)}" y="${Y(29 + Math.floor(i / 2) * 5)}" width="14" height="14" stroke="var(--cyan)" stroke-width="2"/>`; s += `<path d="M${X(62)} ${Y(45)}H${X(86)}" stroke-dasharray="6 5"/></g><text x="${X(88)}" y="${Y(27.5)}" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--cyan)">FB-1…6</text>`; }
+  if (layer === 'mech') { s += `<g fill="none" stroke="var(--plan-line)" stroke-width="10" opacity=".25"><path d="M${X(62)} ${Y(42)}H${X(80)}V${Y(12)}M${X(80)} ${Y(42)}V${Y(88)}M${X(36)} ${Y(42)}H${X(18)}V${Y(88)}M${X(18)} ${Y(42)}V${Y(12)}"/></g><g ${L} stroke-width="1.2" fill="none">`; for (const [x, y] of [[20, 10], [36, 10], [52, 10], [68, 10], [20, 90], [36, 90], [52, 90], [68, 90], [92, 50], [92, 64], [92, 30], [8, 34], [8, 60]]) s += `<rect x="${X(x) - 9}" y="${Y(y) - 9}" width="18" height="18"/><path d="M${X(x) - 9} ${Y(y) - 9}l18 18M${X(x) + 9} ${Y(y) - 9}l-18 18"/>`; s += '</g>'; }
+  // labels
+  s += ROOMS.map(([c, n, x, y]) => `<g font-family="JetBrains Mono,monospace" text-anchor="middle"><text x="${X(x)}" y="${Y(y) - 2}" font-size="13" font-weight="600" fill="var(--plan-line)">${c}</text><text x="${X(x)}" y="${Y(y) + 12}" font-size="8.5" fill="var(--plan-line)" opacity=".7">${esc(n.toUpperCase())}</text></g>`).join('');
+  s += `<g font-family="JetBrains Mono,monospace" font-size="10" fill="var(--plan-line)" opacity=".7"><text x="${X(50)}" y="${Y(1.5) - 0}" dy="-2" text-anchor="middle">E 33RD ST</text></g>`;
+  s += `<text x="${X(97)}" y="${Y(97)}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--plan-line)" opacity=".55">2 PARK AVE · FL 20 · NOT FOR CONSTRUCTION · DEMO</text></svg>`;
+  return s;
+}
+/* ---------- Drawings: viewer, markups, pinned comments, drawing log ---------- */
+let MK = { tool: null, color: null, shapes: [], hidden: {}, view: 'viewer', rev: null, flash: null };
+const MK_COLORS = ['#ff5d6c', '#22d3ee', '#ffa94d', '#b8a8ff', '#2dbd78', '#e3c26a', '#6b8cff', '#d08cff'];
+const DISCIPLINES = ['Architectural', 'Structural', 'Mechanical', 'Electrical', 'Plumbing', 'Fire protection', 'Other'];
+const userColor = id => MK_COLORS[Math.max(0, DB.users.findIndex(u => u.id === id)) % MK_COLORS.length];
+const sheetRev = (sh, n) => sh.revs.find(r => r.rev === n) || sh.revs[sh.revs.length - 1];
+const markupsFor = (sh, rev) => DB.markups.filter(m => m.sheet === sh.id && m.rev <= rev && (m.vis === 'published' || m.uid === ME.id));
+const sheetComments = sh => DB.events.filter(e => e.item === sh.id && e.kind === 'comment').sort((a, b) => a.at.localeCompare(b.at));
+function cloudPath(x1, y1, x2, y2) {
+  const seg = (ax, ay, bx, by) => { const len = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(len / 22)), rr = (len / n / 2).toFixed(1); let d = ''; for (let i = 1; i <= n; i++) d += `A${rr} ${rr} 0 0 1 ${(ax + (bx - ax) * i / n).toFixed(1)} ${(ay + (by - ay) * i / n).toFixed(1)}`; return d; };
+  return `M${x1} ${y1}` + seg(x1, y1, x2, y1) + seg(x2, y1, x2, y2) + seg(x2, y2, x1, y2) + seg(x1, y2, x1, y1) + 'Z';
+}
+function shapeSVG(s, op = 1) {
+  const X = v => (v * 10).toFixed(1), Y = v => (v * 6.4).toFixed(1);
+  const st = `stroke="${s.c}" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${op}"`;
+  if (s.t === 'pen') return `<polyline ${st} points="${s.pts.map(p => X(p[0]) + ',' + Y(p[1])).join(' ')}"/>`;
+  if (s.t === 'text') return `<text x="${X(s.x)}" y="${Y(s.y)}" fill="${s.c}" font-family="Instrument Sans,system-ui,sans-serif" font-weight="700" font-size="17" opacity="${op}" style="paint-order:stroke" stroke="var(--plan-bg)" stroke-width="5">${esc(s.s)}</text>`;
+  const x1 = Math.min(s.x1, s.x2), x2 = Math.max(s.x1, s.x2), y1 = Math.min(s.y1, s.y2), y2 = Math.max(s.y1, s.y2);
+  if (s.t === 'rect') return `<rect ${st} x="${X(x1)}" y="${Y(y1)}" width="${X(x2 - x1)}" height="${Y(y2 - y1)}"/>`;
+  if (s.t === 'cloud') return `<path ${st} d="${cloudPath(x1 * 10, y1 * 6.4, x2 * 10, y2 * 6.4)}"/>`;
+  if (s.t === 'arrow') { const ax = s.x1 * 10, ay = s.y1 * 6.4, bx = s.x2 * 10, by = s.y2 * 6.4, a = Math.atan2(by - ay, bx - ax), h = 18, f = v => v.toFixed(1); return `<path ${st} d="M${f(ax)} ${f(ay)}L${f(bx)} ${f(by)}M${f(bx - h * Math.cos(a - .45))} ${f(by - h * Math.sin(a - .45))}L${f(bx)} ${f(by)}L${f(bx - h * Math.cos(a + .45))} ${f(by - h * Math.sin(a + .45))}"/>`; }
+  return '';
+}
+function sheetBase(sh, rv) {
+  if (rv.img) return `<img class="sheetimg" src="${rv.img}" alt="${esc(sh.code)} revision ${rv.rev}">`;
+  if (sh.layer) return planSVG(sh.layer);
+  return `<div class="empty" style="position:absolute;inset:0;display:grid;place-items:center;border:0">No image for this revision</div>`;
+}
+const TOOLS_MK = [['pen', 'Pen'], ['rect', 'Box'], ['cloud', 'Cloud'], ['arrow', 'Arrow'], ['text', 'Text'], ['comment', 'Pin comment']];
+
+function vPlans() {
+  const sheets = DB.sheets.filter(s => s.pid === PID);
+  const tabs = `<div class="seg" role="tablist" aria-label="Drawings"><button role="tab" data-dv="viewer" aria-selected="${MK.view === 'viewer'}" aria-pressed="${MK.view === 'viewer'}">Viewer</button><button role="tab" data-dv="log" aria-selected="${MK.view === 'log'}" aria-pressed="${MK.view === 'log'}">Drawing log · ${sheets.length}</button>${can('plans', 3) ? '<button data-up="new" style="margin-left:auto;border-color:var(--lilac);color:var(--tx)">+ Upload drawing</button>' : ''}</div>`;
+  if (!sheets.length) { $('#view').innerHTML = tabs + `<div class="empty">No drawings for this project yet.${can('plans', 3) ? ' Upload the permit set to get started.' : ''}</div>`; bindDrawTabs(); return; }
+  if (MK.view === 'log') return vDrawLog(sheets, tabs);
+  if (!sheets.find(s => s.id === PLAN.sheet)) { PLAN.sheet = sheets[0].id; MK.rev = null; }
+  const sh = sheets.find(s => s.id === PLAN.sheet);
+  const viewRev = MK.rev == null ? sh.rev : MK.rev; const rv = sheetRev(sh, viewRev); const isCur = rv.rev === sh.rev;
+  const pins = isCur && can('field') ? items('field').filter(i => i.loc && i.loc.sheet === sh.id && (PLAN.filter === 'all' || i.status !== 'closed')) : [];
+  const mks = markupsFor(sh, rv.rev); const cmts = sheetComments(sh);
+  const pinned = cmts.filter(e => e.loc && (e.loc.rev == null || e.loc.rev <= rv.rev));
+  const marking = MK.tool != null;
+  if (marking && !MK.color) MK.color = userColor(ME.id);
+  $('#view').innerHTML = tabs + `<div class="drawings">
+    <div class="sheets" role="group" aria-label="Sheets">${sheets.map(s => `<button class="sheet-btn" data-sheet="${s.id}" aria-pressed="${s.id === sh.id}"><b>${esc(s.code)} · Rev ${s.rev}</b><span>${esc(s.title)}</span></button>`).join('')}</div>
+    <div style="min-width:0">
+      <div class="planbar">
+        <div style="min-width:0"><div class="eyebrow">${esc(sh.disc)} · ${isCur ? 'current revision' : 'superseded revision'}</div><b class="disp" style="font-size:24px">${esc(sh.code)} ${esc(sh.title)}</b> <span class="tag">REV ${rv.rev} · ${fmtD(rv.at)}</span></div>
+        <div style="margin-left:auto" class="toolbar">
+          ${isCur && can('field') ? `<div class="seg" role="group" aria-label="Pins shown"><button data-pf="active" aria-pressed="${PLAN.filter === 'active'}">Open pins</button><button data-pf="all" aria-pressed="${PLAN.filter === 'all'}">All</button></div>` : ''}
+          <button class="btn sm" id="zOut" aria-label="Zoom out">−</button><span class="mono dim" style="font-size:12px">${Math.round(PLAN.zoom * 100)}%</span><button class="btn sm" id="zIn" aria-label="Zoom in">+</button>
+          ${isCur && can('field', 2) && !marking ? `<button class="btn sm ${PLAN.drop ? 'pri' : ''}" id="dropBtn">${PLAN.drop ? 'Tap the sheet…' : '+ Pin an item'}</button>` : ''}
+          ${can('plans', 2) && !marking ? '<button class="btn sm pri" id="mkStart">Mark up</button>' : ''}
+          ${can('plans', 3) && !marking ? '<button class="btn sm" data-up="rev">Upload revision</button>' : ''}
+        </div>
+      </div>
+      ${marking ? `<div class="mkbar" role="toolbar" aria-label="Markup tools">
+        <div class="seg">${TOOLS_MK.map(([k, l]) => `<button data-tool="${k}" aria-pressed="${MK.tool === k}">${l}</button>`).join('')}</div>
+        <div class="swatches" role="group" aria-label="Color">${MK_COLORS.slice(0, 6).map(c => `<button class="sw" data-col="${c}" aria-label="Color ${c}" aria-pressed="${MK.color === c}" style="background:${c}"></button>`).join('')}</div>
+        <span class="mono dim" style="font-size:12px">${MK.shapes.length} shape${MK.shapes.length === 1 ? '' : 's'}</span>
+        <div class="actions" style="margin-left:auto"><button class="btn sm ghost" id="mkUndo" ${MK.shapes.length ? '' : 'disabled'}>Undo</button><button class="btn sm ghost" id="mkCancel">Cancel</button><button class="btn sm" id="mkPriv" ${MK.shapes.length ? '' : 'disabled'}>Save private</button><button class="btn sm pri" id="mkPub" ${MK.shapes.length ? '' : 'disabled'}>Publish</button></div>
+        <p class="fine" style="margin:0;flex-basis:100%">${MK.tool === 'comment' ? 'Tap a spot to pin a comment there. Everyone with access to drawings sees it.' : MK.tool === 'text' ? 'Tap where the note goes.' : 'Drag on the sheet to draw. Published markups are visible to everyone with drawing access; private ones only to you.'}</p></div>` : ''}
+      ${!isCur ? `<div class="alert c-orange" style="margin-bottom:10px"><span class="s"></span><div style="color:var(--tx)">You are looking at Rev ${rv.rev}, which was replaced by Rev ${sh.rev}. <a href="#" id="toCur">Go to the current revision</a></div></div>` : ''}
+      ${PLAN.drop ? '<p class="drop-hint" style="margin:0 0 8px">Tap where the issue is. The room is picked up from the plan.</p>' : ''}
+      <div class="planwrap"><div class="plancanvas ${PLAN.drop ? 'dropping' : ''} ${marking ? 'marking' : ''}" id="canvas" style="width:${PLAN.zoom * 100}%">${sheetBase(sh, rv)}
+        ${!isCur ? `<div class="superseded" aria-hidden="true">SUPERSEDED · REV ${rv.rev}</div>` : ''}
+        <svg class="mk-layer" id="mk" viewBox="0 0 1000 640" preserveAspectRatio="none" aria-label="Markups">${mks.filter(m => !MK.hidden[m.id]).map(m => `<g data-mk="${m.id}">${m.shapes.map(s => shapeSVG(s, m.rev < rv.rev ? .45 : 1)).join('')}</g>`).join('')}<g id="mkDraft">${MK.shapes.map(s => shapeSVG(s)).join('')}</g></svg>
+        ${pins.map(i => `<button class="pin c-${FIELD_STATUS[i.status].c}" style="left:${i.loc.x}%;top:${i.loc.y}%" data-item="${i.id}" aria-label="${esc(i.type + ' ' + i.num + ': ' + i.title)}"><i><span>${i.num}</span></i></button>`).join('')}
+        ${pinned.map(e => `<button class="cpin ${MK.flash === e.id ? 'flash' : ''}" style="left:${e.loc.x}%;top:${e.loc.y}%;--pc:${userColor(e.uid)}" data-cm="${e.id}" aria-label="Comment by ${esc(uname(e.uid))}: ${esc(e.body)}"><span>${initials(uname(e.uid))}</span></button>`).join('')}
+      </div></div>
+      <div class="planbar" style="margin-top:10px"><div class="legend">${isCur && can('field') ? Object.values(FIELD_STATUS).map(s => `<span class="c-${s.c}"><i></i><span style="color:var(--mid)">${s.l}</span></span>`).join('') : ''}<span><span class="cpin-key"></span><span style="color:var(--mid)">Pinned comment</span></span></div></div>
+    </div>
+    <aside class="panel dpanel" aria-label="Revision, markups and comments">
+      <div class="field"><label for="revSel">Revision</label><select id="revSel">${sh.revs.slice().reverse().map(r => `<option value="${r.rev}" ${r.rev === rv.rev ? 'selected' : ''}>Rev ${r.rev} · ${fmtD(r.at)} · ${esc(r.set || r.note)}${r.rev === sh.rev ? ' (current)' : ''}</option>`).join('')}</select></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Markups · ${mks.length}</div>
+        ${mks.length ? `<div class="list">${mks.slice().reverse().map(m => `<div class="mkrow"><span class="dot" style="background:${userColor(m.uid)}"></span><div style="min-width:0"><b>${esc(uname(m.uid))}</b> <span class="dim" style="font-size:12px">${fmtD(m.at)}${m.rev < rv.rev ? ' · from Rev ' + m.rev : ''}</span><div style="font-size:13px" class="mid">${m.shapes.length} shape${m.shapes.length === 1 ? '' : 's'} · ${m.vis === 'private' ? '<span class="c-gold">Private</span>' : 'Published'}${m.note ? ' · ' + esc(m.note) : ''}</div></div><div class="actions" style="justify-content:flex-end"><button class="btn sm ghost" data-hide="${m.id}" aria-pressed="${!MK.hidden[m.id]}">${MK.hidden[m.id] ? 'Show' : 'Hide'}</button>${m.uid === ME.id && m.vis === 'private' ? `<button class="btn sm" data-pubmk="${m.id}">Publish</button>` : ''}${m.uid === ME.id ? `<button class="btn sm warn" data-delmk="${m.id}">Delete</button>` : ''}</div></div>`).join('')}</div>` : '<p class="fine" style="margin:0">No markups on this revision yet.</p>'}
+      </div>
+      <div><div class="eyebrow" style="margin-bottom:8px">Comments · ${cmts.length}</div>
+        <div class="timeline">${cmts.length ? cmts.map(e => evRow(e) + (e.loc ? `<div style="padding-left:42px;margin-top:-6px"><button class="btn sm ghost" data-showcm="${e.id}">Show on sheet${e.loc.rev != null ? ' · Rev ' + e.loc.rev : ''}</button></div>` : '')).join('') : '<p class="fine" style="margin:0">No comments yet.</p>'}</div>
+        ${can('plans', 2) ? `<div class="composer" style="margin-top:12px"><label for="shCmt" class="eyebrow">Comment on ${esc(sh.code)}</label><textarea id="shCmt" placeholder="Question or note about this sheet"></textarea><div class="actions"><button class="btn pri sm" id="shPost">Post</button><button class="btn sm" id="shPin">Pin to a spot</button></div></div>` : ''}
+      </div>
+      <details><summary class="dim" style="cursor:pointer;font-size:13px">Revision history (${sh.revs.length})</summary><div class="list">${sh.revs.slice().reverse().map(r => `<button class="row" data-rv="${r.rev}"><span class="num">Rev ${r.rev}</span><span class="main"><b>${esc(r.set || 'Issue')}${r.note && r.note !== r.set ? ' · ' + esc(r.note) : ''}</b><span>${fmtD(r.at)}${r.by ? ' · ' + esc(uname(r.by)) : ''}</span></span><span class="side">${r.rev === sh.rev ? '<span class="pill c-green">Current</span>' : '<span class="pill c-dim">Superseded</span>'}</span></button>`).join('')}</div></details>
+    </aside></div>`;
+  bindDrawTabs();
+  const rerender = () => vPlans();
+  $$('.sheet-btn').forEach(b => b.onclick = () => { PLAN.sheet = b.dataset.sheet; PLAN.drop = false; MK.rev = null; MK.tool = null; MK.shapes = []; rerender(); });
+  $$('[data-pf]').forEach(b => b.onclick = () => { PLAN.filter = b.dataset.pf; rerender(); });
+  $('#zIn').onclick = () => { PLAN.zoom = Math.min(3, PLAN.zoom + .5); rerender(); };
+  $('#zOut').onclick = () => { PLAN.zoom = Math.max(1, PLAN.zoom - .5); rerender(); };
+  const db = $('#dropBtn'); if (db) db.onclick = () => { PLAN.drop = !PLAN.drop; rerender(); };
+  const tc = $('#toCur'); if (tc) tc.onclick = e => { e.preventDefault(); MK.rev = null; rerender(); };
+  $('#revSel').onchange = e => { MK.rev = +e.target.value; MK.tool = null; MK.shapes = []; rerender(); };
+  $$('[data-rv]').forEach(b => b.onclick = () => { MK.rev = +b.dataset.rv; rerender(); });
+  const ms = $('#mkStart'); if (ms) ms.onclick = () => { MK.tool = 'pen'; MK.shapes = []; PLAN.drop = false; rerender(); };
+  $$('[data-tool]').forEach(b => b.onclick = () => { MK.tool = b.dataset.tool; rerender(); });
+  $$('[data-col]').forEach(b => b.onclick = () => { MK.color = b.dataset.col; rerender(); });
+  const mu = $('#mkUndo'); if (mu) mu.onclick = () => { MK.shapes.pop(); rerender(); };
+  const mc = $('#mkCancel'); if (mc) mc.onclick = () => { MK.tool = null; MK.shapes = []; rerender(); };
+  const saveMk = async vis => {
+    const note = await promptModal(vis === 'published' ? 'Publish markup' : 'Save private markup', vis === 'published' ? 'Everyone with drawing access will see it and get a notification.' : 'Only you will see it. You can publish it later.', 'Optional note, e.g. Bulletin 4 changes');
+    if (note == null) return;
+    const shapes = MK.shapes.slice();
+    const ok = await mutate(() => api('/site/markup', { item_id: sh.id, rev: rv.rev, shapes, note, visibility: vis }), vis === 'published' ? 'Markup published' : 'Saved privately', () => { MK.tool = null; MK.shapes = []; vPlans(); });
+    if (!ok) MK.shapes = shapes;
+  };
+  const mp = $('#mkPub'); if (mp) mp.onclick = () => saveMk('published');
+  const mv = $('#mkPriv'); if (mv) mv.onclick = () => saveMk('private');
+  $$('[data-hide]').forEach(b => b.onclick = () => { MK.hidden[b.dataset.hide] = !MK.hidden[b.dataset.hide]; rerender(); });
+  $$('[data-pubmk]').forEach(b => b.onclick = () => mutate(() => api('/site/markup/publish', { event_id: b.dataset.pubmk }), 'Markup published', () => vPlans()));
+  $$('[data-delmk]').forEach(b => b.onclick = async () => { if (!(await confirmModal('Delete this markup?', 'It is removed for everyone who could see it.', 'Delete'))) return; mutate(() => api('/site/markup/delete', { event_id: b.dataset.delmk }), 'Markup deleted', () => vPlans()); });
+  $$('[data-showcm]').forEach(b => b.onclick = () => { const e = DB.events.find(x => x.id === b.dataset.showcm); MK.flash = e.id; if (e.loc.rev != null && e.loc.rev > rv.rev) MK.rev = null; rerender(); const el = $(`[data-cm="${e.id}"]`); if (el) el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' }); setTimeout(() => { MK.flash = null; const f = $('.cpin.flash'); if (f) f.classList.remove('flash'); }, 2400); });
+  $$('[data-cm]').forEach(b => b.onclick = () => { const btn = $(`[data-showcm="${b.dataset.cm}"]`); if (btn) btn.scrollIntoView({ block: 'center', behavior: 'smooth' }); b.classList.add('flash'); setTimeout(() => b.classList.remove('flash'), 1600); });
+  const sp = $('#shPost'); if (sp) sp.onclick = () => { const t = $('#shCmt').value.trim(); if (!t) { toast('Write the comment first.', true); return; } mutate(() => api('/site/event', { item_id: sh.id, body: t }), 'Comment posted', () => vPlans()); };
+  const pn = $('#shPin'); if (pn) pn.onclick = () => { const t = $('#shCmt').value.trim(); MK.pending = t; MK.tool = 'comment'; rerender(); toast('Tap the spot on the sheet'); };
+  $$('[data-up]').forEach(b => b.onclick = () => uploadForm(b.dataset.up === 'rev' ? sh : null));
+  bindMarkup($('#mk'), sh, rv);
+  $('#canvas').onclick = e => {
+    if (!PLAN.drop || marking || e.target.closest('.pin,.cpin')) return;
+    const r = e.currentTarget.getBoundingClientRect(); const x = +((e.clientX - r.left) / r.width * 100).toFixed(1), y = +((e.clientY - r.top) / r.height * 100).toFixed(1);
+    PLAN.drop = false; const room = nearestRoom(x, y); fieldForm({ loc: { sheet: sh.id, x, y, unit: room[0] } });
+  };
+  bindRows($('#canvas'));
+}
+function bindMarkup(svg, sh, rv) {
+  if (!svg || MK.tool == null) return;
+  let cur = null;
+  const pt = e => { const r = svg.getBoundingClientRect(); return [Math.min(100, Math.max(0, +((e.clientX - r.left) / r.width * 100).toFixed(2))), Math.min(100, Math.max(0, +((e.clientY - r.top) / r.height * 100).toFixed(2)))]; };
+  const draft = () => { $('#mkDraft').innerHTML = MK.shapes.concat(cur ? [cur] : []).map(s => shapeSVG(s)).join(''); };
+  svg.addEventListener('pointerdown', async e => {
+    e.preventDefault(); const p = pt(e);
+    if (MK.tool === 'text') { const t = await promptModal('Text note', 'What should the note on the drawing say?', 'e.g. VERIFY IN FIELD'); if (t) { MK.shapes.push({ t: 'text', x: p[0], y: p[1], s: t.slice(0, 60), c: MK.color }); vPlans(); } return; }
+    if (MK.tool === 'comment') {
+      let t = MK.pending; MK.pending = null;
+      if (!t) t = await promptModal('Pin a comment', `Comment at this spot on ${sh.code}.`, 'Question or note');
+      if (!t) return;
+      await mutate(() => api('/site/event', { item_id: sh.id, body: t, loc: { x: p[0], y: p[1], rev: rv.rev } }), 'Comment pinned', () => { if (!MK.shapes.length) MK.tool = null; vPlans(); });
+      return;
+    }
+    svg.setPointerCapture(e.pointerId);
+    cur = MK.tool === 'pen' ? { t: 'pen', pts: [p], c: MK.color } : { t: MK.tool, x1: p[0], y1: p[1], x2: p[0], y2: p[1], c: MK.color };
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!cur) return; const p = pt(e);
+    if (cur.t === 'pen') { const l = cur.pts[cur.pts.length - 1]; if (Math.hypot(p[0] - l[0], p[1] - l[1]) > .35) cur.pts.push(p); } else { cur.x2 = p[0]; cur.y2 = p[1]; }
+    draft();
+  });
+  const end = () => {
+    if (!cur) return;
+    const big = cur.t === 'pen' ? cur.pts.length > 2 : Math.hypot(cur.x2 - cur.x1, cur.y2 - cur.y1) > 1;
+    if (big) MK.shapes.push(cur); cur = null; vPlans();
+  };
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', () => { cur = null; draft(); });
+}
+function bindDrawTabs() {
+  $$('[data-dv]').forEach(b => b.onclick = () => { MK.view = b.dataset.dv; MK.tool = null; MK.shapes = []; vPlans(); });
+  $$('[data-up="new"]').forEach(b => b.onclick = () => uploadForm(null));
+}
+let DLF = { disc: 'all', q: '' };
+function vDrawLog(sheets, tabs) {
+  let list = sheets.slice().sort((a, b) => a.code.localeCompare(b.code, 'en', { numeric: true }));
+  if (DLF.disc !== 'all') list = list.filter(s => s.disc === DLF.disc);
+  if (DLF.q) { const q = DLF.q.toLowerCase(); list = list.filter(s => (s.code + ' ' + s.title).toLowerCase().includes(q)); }
+  const discs = [...new Set(sheets.map(s => s.disc))];
+  const issues = sheets.flatMap(s => s.revs.map(r => ({ s, r }))).sort((a, b) => b.r.at.localeCompare(a.r.at) || b.r.rev - a.r.rev);
+  const pubCount = s => DB.markups.filter(m => m.sheet === s.id && (m.vis === 'published' || m.uid === ME.id)).length;
+  $('#view').innerHTML = tabs + `
+  <div class="toolbar"><div class="seg" role="group" aria-label="Discipline"><button data-disc="all" aria-pressed="${DLF.disc === 'all'}">All</button>${discs.map(d => `<button data-disc="${esc(d)}" aria-pressed="${DLF.disc === d}">${esc(d)}</button>`).join('')}</div>
+    <div class="grow"><label class="eyebrow" for="dlq">Search sheets</label><input id="dlq" type="search" placeholder="A-101, pantry, ceiling…" value="${esc(DLF.q)}"></div></div>
+  <section class="panel"><header><h2>Drawing log</h2><span class="dim" style="font-size:13px">Current revision of every sheet. Older revisions stay in each sheet's history.</span></header>
+    <div class="tbl-wrap"><table><thead><tr><th>Sheet</th><th>Title</th><th>Discipline</th><th class="num">Rev</th><th>Rev date</th><th>Issued for</th><th>Issued by</th><th class="num">Markups</th><th class="num">Comments</th></tr></thead><tbody>
+    ${list.map(s => { const r = s.revs[s.revs.length - 1]; return `<tr data-open="${s.id}" style="cursor:pointer" tabindex="0"><td class="mono"><b>${esc(s.code)}</b></td><td>${esc(s.title)}</td><td>${esc(s.disc)}</td><td class="num">${s.rev}</td><td class="mono">${fmtD(r.at)}</td><td>${esc(r.set || '—')}</td><td>${esc(r.by ? uname(r.by) : '—')}</td><td class="num">${pubCount(s)}</td><td class="num">${sheetComments(s).length}</td></tr>`; }).join('') || '<tr><td colspan="9" class="dim">No sheets match.</td></tr>'}
+    </tbody></table></div></section>
+  <section class="panel"><header><h2>Issue history</h2><span class="dim" style="font-size:13px">Every revision issued on this project, newest first</span></header>
+    <div class="list">${issues.map(({ s, r }) => `<button class="row" data-open="${s.id}" data-rev="${r.rev}"><span class="num">${esc(s.code)}</span><span class="main"><b>Rev ${r.rev} · ${esc(r.set || 'Issue')}${r.note && r.note !== r.set ? ' · ' + esc(r.note) : ''}</b><span>${fmtD(r.at)}${r.by ? ' · ' + esc(uname(r.by)) : ''}</span></span><span class="side">${r.rev === s.rev ? '<span class="pill c-green">Current</span>' : '<span class="pill c-dim">Superseded</span>'}</span></button>`).join('')}</div></section>`;
+  bindDrawTabs();
+  $$('[data-disc]').forEach(b => b.onclick = () => { DLF.disc = b.dataset.disc; vPlans(); });
+  $('#dlq').oninput = e => { DLF.q = e.target.value; clearTimeout(vDrawLog.t); vDrawLog.t = setTimeout(() => { vPlans(); const q = $('#dlq'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }, 250); };
+  $$('[data-open]').forEach(b => { const open = () => { PLAN.sheet = b.dataset.open; MK.rev = b.dataset.rev != null ? +b.dataset.rev : null; MK.view = 'viewer'; vPlans(); window.scrollTo(0, 0); }; b.onclick = open; b.onkeydown = e => { if (e.key === 'Enter') open(); }; });
+}
+function uploadForm(sh) {
+  const isRev = !!sh;
+  openModal(isRev ? `New revision · ${sh.code}` : 'Upload a drawing', `
+    ${isRev ? `<p class="mid" style="margin:0">Rev ${sh.rev + 1} replaces Rev ${sh.rev}. Rev ${sh.rev} stays in the history, and existing markups carry forward faded.</p>` : `
+    <div class="f2"><div class="field"><label for="up_code">Sheet number</label><input id="up_code" placeholder="A-501" autocomplete="off"></div><div class="field"><label for="up_disc">Discipline</label><select id="up_disc">${DISCIPLINES.map(d => `<option>${d}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="up_title">Sheet title</label><input id="up_title" placeholder="Floor 20 · Details"></div>`}
+    <div class="f2"><div class="field"><label for="up_set">Issued for</label><input id="up_set" placeholder="${isRev ? 'Bulletin 4' : 'Permit set'}"></div><div class="field"><label for="up_note">What changed</label><input id="up_note" placeholder="${isRev ? 'Pantry casework revised' : 'Initial issue'}"></div></div>
+    <div class="field"><label for="up_file">Drawing file (PDF, PNG or JPG)</label><input id="up_file" type="file" accept="application/pdf,image/*"><span class="fine">For a PDF, the first page becomes the sheet. Upload one sheet per file.</span></div>
+    <p class="fine" id="up_status" style="margin:0" aria-live="polite"></p>`, isRev ? 'Issue revision' : 'Upload', async m => {
+    const f = $('#up_file', m).files[0]; if (!f) { toast('Choose the drawing file.', true); return false; }
+    const set = $('#up_set', m).value.trim(), note = $('#up_note', m).value.trim();
+    let code, title;
+    if (!isRev) {
+      code = $('#up_code', m).value.trim().toUpperCase(); title = $('#up_title', m).value.trim();
+      if (!/^[A-Z]{1,3}-?\d{1,4}(\.\d+)?$/.test(code) || !title) { toast('Use a sheet number like A-501 and add a title.', true); return false; }
+      if (DB.sheets.some(s => s.pid === PID && s.code === code)) { toast(`${code} already exists. Open it and upload a revision instead.`, true); return false; }
+    }
+    const btn = $('button[type=submit]', m); btn.disabled = true; $('#up_status', m).textContent = 'Preparing the sheet…';
+    let img; try { img = await drawingBlob(f); } catch (e) { btn.disabled = false; $('#up_status', m).textContent = ''; toast(e.message && /PDF/.test(e.message) ? e.message : 'That file could not be read. Use a PDF, PNG or JPG.', true); return false; }
+    $('#up_status', m).textContent = 'Uploading…';
+    const ok = await mutate(async () => {
+      let sheetId = isRev ? sh.id : null;
+      // A sheet whose first upload failed part-way is kept as a draft; reuse it instead of making a duplicate.
+      if (!isRev) { const draft = (DB.draftSheets || []).find(x => x.pid === PID && x.code === code); sheetId = draft ? draft.id : (await api('/site/item/create', { item: { kind: 'sheet', project_id: PID, ref: code, title, data: { discipline: $('#up_disc', m).value } } })).item.id; }
+      const fid = await uploadBlob(sheetId, img.blob, (code || sh.code) + '.jpg', 'Drawing ' + (code || sh.code));
+      await api('/site/sheet/revise', { id: sheetId, file_id: fid, set, note });
+      return sheetId;
+    }, isRev ? `${sh.code} Rev ${sh.rev + 1} is now current. Everyone with drawing access was notified.` : `${code} added to the drawing log${img.pages > 1 ? ` (page 1 of ${img.pages})` : ''}`, id => { closeModal(); PLAN.sheet = id; MK.view = 'viewer'; MK.rev = null; vPlans(); });
+    if (!ok) { btn.disabled = false; $('#up_status', m).textContent = ''; return false; }
+  });
+}
+
+/* ---------- Notifications: every change is an event; you see events on anything you can see ---------- */
+function thing(id) { return DB.items.find(i => i.id === id) || DB.sheets.find(s => s.id === id) || DB.bookings.find(b => b.id === id) || DB.cois.find(c => c.id === id) || DB.permits.find(p => p.id === id) || DB.projects.find(p => p.id === id); }
+const isSheet = t => DB.sheets.includes(t), isProj = t => DB.projects.includes(t);
+function canSeeThing(t) {
+  if (!t) return false;
+  const mine = pid => myProjects().some(p => p.id === pid);
+  if (isProj(t)) return mine(t.id);
+  if (isSheet(t)) return can('plans') && mine(t.pid);
+  if (t.kind === 'booking') return can('building') && (ME.role !== 'sub' || t.company === ME.company);
+  if (t.kind === 'coi') return can('building') && (ME.role !== 'sub' || t.company === ME.company);
+  if (t.kind === 'permit') return can('building');
+  return mine(t.pid) && visibleItem(t);
+}
+function thingLabel(t) { if (isProj(t)) return t.name; if (isSheet(t)) return `${t.code} ${t.title}`; if (t.kind === 'booking') return `${t.type} · ${fmtD(t.date)}`; if (t.kind === 'coi') return `Insurance · ${coById(t.company).name}`; if (t.kind === 'log') return `Daily log · ${fmtD(t.date)}`; return `${itemLabel(t)} · ${t.title}`; }
+const VERB = { created: 'created', status: 'updated', comment: 'commented on', response: 'answered', markup: 'marked up', revision: 'issued', share: 'shared', file: 'attached a file to' };
+function notifs() {
+  return DB.events.filter(e => {
+    if (e.uid === ME.id) return false;
+    if (e.kind === 'markup' && e.vis === 'private') return false;
+    const t = thing(e.item); if (!canSeeThing(t)) return false;
+    if (e.kind === 'share' && e.target && e.target !== ME.id && !['pm', 'admin', 'super'].includes(ME.role)) return false;
+    return true;
+  }).sort((a, b) => b.at.localeCompare(a.at));
+}
+const unreadCount = () => UNREAD;
+function wouldEmail(e, t) {
+  const p = ME.prefs || {};
+  if (p.all) return true;
+  if (p.bic && t.bic && t.bic.includes(ME.id)) return true;
+  if (p.submittals && t.kind === 'submittal') return true;
+  if (p.drawings && (isSheet(t))) return true;
+  return false;
+}
+let NF = 'all';
+const NOTIF_VERB = { created: 'created', status: 'updated', comment: 'commented on', response: 'answered', markup: 'marked up', revision: 'issued', file: 'added a file to' };
+function openNotifs() {
+  const all = NOTIFS.filter(n => !(n.kind === 'file' && n.item.kind === 'sheet')); const list = NF === 'unread' ? all.filter(n => n.unread) : all;
+  const p = ME.prefs || {}; const pname = id => (DB.projects.find(x => x.id === id) || {}).name;
+  openDrawer('Notifications', `
+    <div class="toolbar"><div class="seg" role="group" aria-label="Show"><button data-nf="all" aria-pressed="${NF === 'all'}">All</button><button data-nf="unread" aria-pressed="${NF === 'unread'}">Unread · ${UNREAD}</button></div><button class="btn sm" id="markRead" style="margin-left:auto">Mark all read</button></div>
+    <div class="nlist">${list.length ? list.map(n => `<button class="nrow ${n.unread ? 'unread' : ''}" data-nid="${n.id}"><span class="av">${initials(n.actor || '?')}</span><span class="main"><span class="nt"><b>${esc(n.actor)}</b> ${NOTIF_VERB[n.kind] || 'updated'} <b>${esc(n.item.label)}${n.item.title ? ' · ' + esc(n.item.title) : ''}</b></span>${n.body ? `<span class="nb">${esc(n.body)}</span>` : ''}<span class="nm">${pname(n.item.project_id) ? esc(pname(n.item.project_id)) + ' · ' : ''}${fmtDT(n.at)}${n.item.your_court ? ' · <span class="c-lilac">Your court</span>' : ''}</span></span>${n.unread ? '<span class="udot" aria-label="Unread"></span>' : ''}</button>`).join('') : `<div class="empty">${NF === 'unread' ? 'You are all caught up.' : 'No activity in the last 30 days.'}</div>`}</div>
+    <section class="panel" style="padding:14px"><div class="eyebrow" style="margin-bottom:8px">Email me when</div>
+      <div class="prefs">
+        ${[['bic', 'Something lands in my court', 'RFIs, submittals, punch items and approvals waiting on you'], ['submittals', 'Any submittal I can see changes', 'Submitted, reviewed, approved, returned for revision'], ['drawings', 'A drawing is issued, marked up or commented on', ''], ['all', 'Anything changes on my projects', 'Every update, comment and approval'], ['digest', 'Send a daily digest at 7 AM', 'One email with everything from the last 24 hours']].map(([k, l, d]) => `<label class="pref"><input type="checkbox" data-pref="${k}" ${p[k] ? 'checked' : ''}><span><b>${l}</b>${d ? `<span class="fine">${d}</span>` : ''}</span></label>`).join('')}
+      </div><p class="fine" style="margin:8px 0 0">The bell always shows every change. These settings only control email.</p></section>`, 'Activity', d => {
+    $$('[data-nf]', d).forEach(b => b.onclick = () => { NF = b.dataset.nf; openNotifs(); });
+    $('#markRead', d).onclick = async () => { try { await api('/site/notifications/seen'); await syncNotifs(); renderNav(); openNotifs(); } catch (e) { if (!(e instanceof SignedOut)) toast(e.message, true); } };
+    $$('[data-nid]', d).forEach(b => b.onclick = () => openNotif(NOTIFS.find(n => n.id === b.dataset.nid)));
+    $$('[data-pref]', d).forEach(c => c.onchange = async () => { const prefs = { ...(ME.prefs || {}), [c.dataset.pref]: c.checked }; try { const r = await api('/site/notifications/prefs', { prefs }); ME.prefs = r.prefs; toast('Email settings saved'); } catch (e) { c.checked = !c.checked; if (!(e instanceof SignedOut)) toast(e.message, true); } });
+  });
+}
+async function openNotif(n) {
+  if (!n) return;
+  if (n.item.project_id && n.item.project_id !== PID && DB.projects.some(p => p.id === n.item.project_id)) { PID = n.item.project_id; try { await sync(); } catch (e) { return; } renderShell(); }
+  const t = thing(n.item.id);
+  if (!t) { closeLayer(); toast('That item is no longer available.', true); return; }
+  const ev = DB.events.find(e => e.id === n.id);
+  openThing(t, ev);
+}
+function openThing(t, e) {
+  closeLayer();
+  const pid = isProj(t) ? t.id : t.pid;
+  if (pid && pid !== PID && myProjects().some(p => p.id === pid)) { PID = pid; $('#projSel').value = PID; $('#projSelM').value = PID; }
+  if (isProj(t)) return go('home');
+  if (isSheet(t)) { PLAN.sheet = t.id; MK.view = 'viewer'; MK.rev = null; if (e && e.loc) MK.flash = e.id; go('plans'); if (e && e.loc) setTimeout(() => { const el = $(`[data-cm="${e.id}"]`); if (el) el.scrollIntoView({ block: 'center', inline: 'center' }); setTimeout(() => { MK.flash = null; }, 2400); }, 50); return; }
+  if (t.kind === 'booking' || t.kind === 'coi' || t.kind === 'permit') { BTAB = t.kind === 'coi' ? 'coi' : t.kind === 'permit' ? 'permits' : 'bookings'; return go('building'); }
+  if (t.kind === 'log') { LOGDATE = t.date; return go('log'); }
+  go(t.kind === 'co' ? 'changes' : t.kind === 'field' ? 'field' : t.kind);
+  openItem(t);
+}
+
+/* ---------- Share a project with a tenant / client ---------- */
+const SHARE_OPTS = [['field', 'Progress & punch list', 1], ['rfi', 'RFIs', 1], ['submittal', 'Submittals', 1], ['log', 'Daily logs', 0], ['changes', 'Change orders', 0]];
+function shareForm(u) {
+  const editing = !!u; const pr = editing ? u.perms : { field: 1, plans: 2, rfi: 1, submittal: 1, log: 0, changes: 0 };
+  openModal(editing ? `Access · ${u.name}` : `Share ${proj().name}`, `
+    ${editing ? '' : `<div class="f2"><div class="field"><label for="sh_n">Name</label><input id="sh_n" autocomplete="off" placeholder="Jordan Pike"></div><div class="field"><label for="sh_e">Email</label><input id="sh_e" type="email" inputmode="email" autocomplete="off" placeholder="name@tenant.com"></div></div>
+    <div class="field"><label for="sh_c">Company</label><input id="sh_c" placeholder="Tenant or client company"></div>`}
+    <div><div class="eyebrow" style="margin-bottom:8px">What they can see</div><div class="prefs">
+      <label class="pref"><span style="flex:1"><b>Drawings</b><span class="fine">Sheets, revisions and published markups</span></span><select id="sh_plans" style="width:auto"><option value="1" ${pr.plans === 1 ? 'selected' : ''}>View only</option><option value="2" ${pr.plans !== 1 ? 'selected' : ''}>View, comment & mark up</option></select></label>
+      ${SHARE_OPTS.map(([k, l]) => `<label class="pref"><input type="checkbox" data-sh="${k}" ${pr[k] ? 'checked' : ''}><span><b>${l}</b><span class="fine">Read only</span></span></label>`).join('')}
+    </div></div>
+    <div class="alert c-cyan"><span class="s"></span><div style="color:var(--tx);font-size:13px">They see <b>only ${esc(proj().name)}</b>. No other projects, no building operations, insurance, permits or bookings, and no company directory. Draft RFIs and private markups stay hidden.</div></div>`, editing ? 'Save access' : 'Share project', m => {
+    const perms = { plans: +$('#sh_plans', m).value, building: 0, directory: 0 }; $$('[data-sh]', m).forEach(c => perms[c.dataset.sh] = c.checked ? 1 : 0);
+    if (editing) return mutate(() => api('/site/manage/user', { user_id: u.id, action: 'set_perms', perms: permsToServer(perms) }), `Access updated · ${u.name} sees the change next time the app loads`, () => { closeModal(); vHome(); }).then(r => r ? undefined : false);
+    const n = $('#sh_n', m).value.trim(), e = $('#sh_e', m).value.trim().toLowerCase(), cn = $('#sh_c', m).value.trim();
+    if (!n || !/^\S+@\S+\.\S+$/.test(e) || !cn) { toast('Add a name, a valid email and their company.', true); return false; }
+    const co = DB.companies.find(c => c.name.toLowerCase() === cn.toLowerCase());
+    return mutate(() => api('/site/manage/share', { project_id: PID, name: n, email: e, company_name: cn, organization_id: co && !String(co.id).startsWith('co_') ? co.id : undefined, title: 'Client', perms: permsToServer(perms) }), `Shared · ${n} gets an email with their sign-in PIN`, () => { closeModal(); vHome(); }).then(r => r ? undefined : false);
+  });
+}
+function sharedPanel() {
+  const ts = DB.users.filter(u => u.role === 'tenant' && u.projects.includes(PID));
+  const lbl = u => [u.perms.plans ? (u.perms.plans >= 2 ? 'Drawings + markup' : 'Drawings') : null, ...SHARE_OPTS.filter(([k]) => u.perms[k]).map(([, l]) => l)].filter(Boolean).join(' · ');
+  return `<section class="panel"><header><h2>Shared with clients</h2><div class="r"><button class="btn pri sm" id="shareBtn">+ Share this project</button></div></header>
+    <p class="fine" style="margin:0 0 10px">A tenant or client gets their own login that opens this project and nothing else.</p>
+    <div class="list">${ts.length ? ts.map(u => `<div class="row" style="cursor:default"><span class="av">${initials(u.name)}</span><span class="main"><b>${esc(u.name)} · ${esc(coById(u.company).name)}</b><span>${esc(lbl(u))}${u.invited ? ' · invite not yet used' : ''}</span></span><span class="side">${u.status === 'active' ? `<button class="btn sm" data-shedit="${u.id}">Access</button><button class="btn sm warn" data-shoff="${u.id}">Revoke</button>` : `<span class="pill c-dim">Revoked</span><button class="btn sm" data-shon="${u.id}">Restore</button>`}</span></div>`).join('') : '<div class="empty">Not shared with anyone outside the project team.</div>'}</div></section>`;
+}
+function bindShared() {
+  const b = $('#shareBtn'); if (b) b.onclick = () => shareForm();
+  $$('[data-shedit]').forEach(x => x.onclick = () => shareForm(userById(x.dataset.shedit)));
+  $$('[data-shoff]').forEach(x => x.onclick = async () => { const u = userById(x.dataset.shoff); if (!(await confirmModal(`Revoke ${u.name}'s access?`, 'They are signed out immediately and can no longer open this project.', 'Revoke'))) return; mutate(() => api('/site/manage/user', { user_id: u.id, action: 'deactivate' }), 'Access revoked', () => vHome()); });
+  $$('[data-shon]').forEach(x => x.onclick = () => { const u = userById(x.dataset.shon); mutate(() => api('/site/manage/user', { user_id: u.id, action: 'reactivate' }), 'Access restored', () => vHome()); });
+}
+function contactsPanel() {
+  const cs = DB.users.filter(u => u.status === 'active' && ['pm', 'super'].includes(u.role) && u.projects.includes(PID));
+  return `<section class="panel"><header><h2>Your contacts at JCC</h2></header><div class="list">${cs.map(u => `<div class="row" style="cursor:default"><span class="av">${initials(u.name)}</span><span class="main"><b>${esc(u.name)}</b><span>${esc(ROLES[u.role].label)} · <span class="mono" style="user-select:all">${esc(u.email)}</span></span></span><span class="side"><button class="btn sm ghost" data-copy="${esc(u.email)}">Copy email</button></span></div>`).join('')}</div></section>`;
+}
+
+/* ---------- Punch & Tasks ---------- */
+function vField() {
+  const F = FILTER.field; let list = items('field');
+  if (F.status === 'active') list = list.filter(i => i.status !== 'closed'); else if (F.status !== 'all') list = list.filter(i => i.status === F.status);
+  if (F.type !== 'all') list = list.filter(i => i.type === F.type);
+  if (F.q) { const q = F.q.toLowerCase(); list = list.filter(i => (i.title + ' ' + roomName(i.loc.unit) + ' ' + i.loc.unit + ' ' + coById(i.company).name + ' #' + i.num).toLowerCase().includes(q)); }
+  list.sort((a, b) => (a.status === 'closed') - (b.status === 'closed') || (overdue(b) - overdue(a)) || a.due.localeCompare(b.due));
+  const all = items('field'); const by = k => all.filter(i => i.status === k).length;
+  $('#view').innerHTML = `${ME.role === 'sub' ? `<div class="alert c-cyan"><span class="s"></span><div style="color:var(--tx)">You see items assigned to <b>${esc(coById(ME.company).name)}</b> and items you created. Mark work <b>Ready for review</b> when done; JCC verifies and closes it.</div></div>` : ''}
+  <div class="seg" role="group" aria-label="Status">${[['active', 'Not closed'], ['open', 'Open'], ['in_progress', 'In progress'], ['ready_review', 'Ready for review'], ['not_accepted', 'Not accepted'], ['closed', 'Closed'], ['all', 'All']].map(([k, l]) => `<button data-st="${k}" aria-pressed="${F.status === k}">${l}${FIELD_STATUS[k] ? ' · ' + by(k) : ''}</button>`).join('')}</div>
+  <div class="toolbar"><div class="grow"><label class="eyebrow" for="fq">Search</label><input id="fq" type="search" placeholder="Room, company, #number…" value="${esc(F.q)}"></div>
+    <div><label class="eyebrow" for="ft">Type</label><select id="ft">${['all', 'Punch', 'Task', 'Safety', 'QA'].map(t => `<option ${F.type === t ? 'selected' : ''} value="${t}">${t === 'all' ? 'All types' : t}</option>`).join('')}</select></div>
+    ${can('field', 2) ? '<div style="align-self:end"><button class="btn pri" data-act="newField">+ New item</button></div>' : ''}</div>
+  <section class="panel"><div class="list">${list.length ? list.map(rowFor).join('') : '<div class="empty">No items match these filters.</div>'}</div></section>`;
+  $$('[data-st]').forEach(b => b.onclick = () => { F.status = b.dataset.st; vField(); });
+  $('#fq').oninput = e => { F.q = e.target.value; clearTimeout(vField.t); vField.t = setTimeout(() => { vField(); const q = $('#fq'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }, 250); };
+  $('#ft').onchange = e => { F.type = e.target.value; vField(); };
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  bindRows($('#view'));
+}
+function fieldTransitions(i) {
+  const mine = ME.company === i.company, isRev = ['pm', 'super', 'admin'].includes(ME.role) || i.created_by === ME.id;
+  const t = [];
+  if (!can('field', 2)) return t;
+  if (['open', 'not_accepted'].includes(i.status) && (mine || isRev)) t.push(['in_progress', 'Start work', '']);
+  if (['open', 'in_progress', 'not_accepted'].includes(i.status) && (mine || isRev)) t.push(['ready_review', 'Ready for review', 'pri']);
+  if (i.status === 'ready_review' && isRev) { t.push(['closed', 'Verify & close', 'ok']); t.push(['not_accepted', 'Not accepted', 'warn']); }
+  if (i.status === 'closed' && isRev) t.push(['open', 'Reopen', '']);
+  return t;
+}
+function openField(i) {
+  const evs = DB.events.filter(e => e.item === i.id).sort((a, b) => a.at.localeCompare(b.at));
+  const sh = DB.sheets.find(s => s.id === i.loc.sheet);
+  const tr = fieldTransitions(i);
+  const canEdit = can('field', 3) || (can('field', 2) && i.created_by === ME.id);
+  openDrawer(`${i.type} #${i.num}`, `
+    <div><h3 class="disp" style="font-size:24px;line-height:1.05">${esc(i.title)}</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pill(FIELD_STATUS, i.status)}${pill(PRI, i.pri)}${overdue(i) ? '<span class="pill c-red">Overdue</span>' : ''}</div></div>
+    ${i.bic && i.bic.length ? `<div class="bic"><span class="ball"></span><span>Ball in court: <b>${esc(i.bic.map(uname).join(', '))}</b></span></div>` : ''}
+    <dl class="kv"><div><dt>Location</dt><dd>${esc(i.loc.unit)} · ${esc(roomName(i.loc.unit))}</dd></div><div><dt>Sheet</dt><dd>${sh ? `<a href="#" id="toSheet">${sh.code} Rev ${sh.rev}</a>` : '—'}</dd></div>
+      <div><dt>Assigned company</dt><dd>${esc(coById(i.company).name)}</dd></div><div><dt>Due</dt><dd>${fmtD(i.due)} ${i.status !== 'closed' ? `<span class="dim">(${daysTo(i.due)}d)</span>` : ''}</dd></div>
+      <div><dt>Created by</dt><dd>${esc(uname(i.created_by))}</dd></div><div><dt>Created</dt><dd>${fmtDT(i.created_at)}</dd></div></dl>
+    ${i.desc ? `<p style="margin:0;white-space:pre-wrap">${esc(i.desc)}</p>` : ''}
+    ${i.photos.length ? `<div class="photos">${i.photos.map(p => `<img src="${p}" alt="Site photo">`).join('')}</div>` : ''}
+    ${tr.length ? `<div class="actions">${tr.map(([s, l, c]) => `<button class="btn ${c}" data-to="${s}">${l}</button>`).join('')}${canEdit ? '<button class="btn ghost" id="editF">Edit</button>' : ''}</div>` : canEdit ? '<div class="actions"><button class="btn ghost" id="editF">Edit</button></div>' : ''}
+    <div><div class="eyebrow" style="margin-bottom:10px">Activity</div><div class="timeline">${evs.map(evRow).join('')}</div></div>
+    ${can('field', 2) ? composer() : ''}`, 'Punch & Tasks', d => {
+    $$('[data-to]', d).forEach(b => b.onclick = async () => {
+      let note = '';
+      if (b.dataset.to === 'not_accepted') { note = await promptModal('Not accepted', 'Tell the trade what still needs fixing.', 'e.g. Wrong tile edge, needs tegular'); if (note == null) return; }
+      const to = b.dataset.to; mutate(() => api('/site/item/transition', { id: i.id, to, note }), `${i.type} #${i.num} → ${FIELD_STATUS[to].l}`, reopen(i.id));
+    });
+    const ts = $('#toSheet', d); if (ts) ts.onclick = e => { e.preventDefault(); PLAN.sheet = i.loc.sheet; go('plans'); };
+    const ef = $('#editF', d); if (ef) ef.onclick = () => fieldForm(i);
+    bindComposer(d, i, () => openField(i));
+  });
+}
+function fieldForm(src = {}) {
+  const editing = !!src.id;
+  const sheets = DB.sheets.filter(s => s.pid === PID);
+  const loc = src.loc || { sheet: sheets[0] && sheets[0].id, unit: '', x: null, y: null };
+  const subOrgs = new Set(DB.users.filter(u => u.role === 'sub').map(u => u.company)); const subsCos = DB.companies.filter(c => subOrgs.has(c.id));
+  if (!subsCos.length && ME.role !== 'sub') { toast('Invite a subcontractor first, so the item has a company to go to.', true); return; }
+  const coLocked = ME.role === 'sub';
+  openModal(editing ? `Edit ${src.type} #${src.num}` : 'New punch item or task', `
+    <div class="f2"><div class="field"><label for="ff_type">Type</label><select id="ff_type">${['Punch', 'Task', 'Safety', 'QA'].map(t => `<option ${src.type === t ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="field"><label for="ff_pri">Priority</label><select id="ff_pri">${Object.entries(PRI).map(([k, v]) => `<option value="${k}" ${(src.pri || 'med') === k ? 'selected' : ''}>${v.l}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="ff_title">What needs doing</label><input id="ff_title" required maxlength="120" value="${esc(src.title || '')}" placeholder="e.g. Missing cover plate on receptacle"></div>
+    <div class="field"><label for="ff_desc">Details</label><textarea id="ff_desc" placeholder="Where exactly, spec reference, what done looks like">${esc(src.desc || '')}</textarea></div>
+    <div class="f2"><div class="field"><label for="ff_unit">Room</label><select id="ff_unit"><option value="">${ROOMS.length ? 'Choose a room' : 'Whole floor / not set'}</option>${ROOMS.map(r => `<option value="${r[0]}" ${loc.unit === r[0] ? 'selected' : ''}>${r[0]} · ${esc(r[1])}</option>`).join('')}</select></div>
+      <div class="field"><label for="ff_sheet">Sheet</label><select id="ff_sheet"><option value="">No sheet</option>${sheets.map(s => `<option value="${s.id}" ${loc.sheet === s.id ? 'selected' : ''}>${s.code} · ${esc(s.title)}</option>`).join('')}</select></div></div>
+    <div class="f2"><div class="field"><label for="ff_co">Assigned company</label><select id="ff_co" ${coLocked ? 'disabled' : ''}>${subsCos.map(c => `<option value="${c.id}" ${(src.company || (coLocked ? ME.company : '')) === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="field"><label for="ff_due">Due</label><input id="ff_due" type="date" value="${src.due || dOff(5)}"></div></div>
+    ${!editing ? `<div class="field"><label for="ff_photo">Photo</label><input id="ff_photo" type="file" accept="image/*" capture="environment"></div>` : ''}
+    ${src.loc && src.loc.x != null ? `<p class="fine" style="margin:0">Pinned on the sheet at ${loc.x}%, ${loc.y}%.</p>` : ''}`, editing ? 'Save changes' : 'Create item', async m => {
+    const title = $('#ff_title', m).value.trim(); if (!title) { toast('Add a short title so the trade knows what to fix.', true); return false; }
+    const unit = $('#ff_unit', m).value; const r = ROOMS.find(x => x[0] === unit);
+    const keepXY = src.loc && src.loc.x != null && (src.loc.unit || '') === unit;
+    const company = coLocked ? ME.company : $('#ff_co', m).value; if (!company) { toast('Choose the company that should do the work.', true); return false; }
+    const sheetId = $('#ff_sheet', m).value || null;
+    const location = { sheet_id: sheetId, unit_code: unit || null, x: keepXY ? loc.x : r ? r[2] : null, y: keepXY ? loc.y : r ? r[3] + 3 : null };
+    const payload = { title, priority: $('#ff_pri', m).value, due_on: $('#ff_due', m).value || dOff(5), organization_id: company, location, data: { type: $('#ff_type', m).value, desc: $('#ff_desc', m).value.trim() } };
+    if (editing) return mutate(() => api('/site/item/update', { id: src.id, patch: payload }), 'Saved', () => { closeModal(); reopen(src.id)(); }).then(x => x ? undefined : false);
+    const f = $('#ff_photo', m) && $('#ff_photo', m).files[0];
+    return mutate(async () => { const res = await api('/site/item/create', { item: { kind: 'field', project_id: PID, ...payload } }); if (f) await uploadPhoto(res.item.id, f, 'Photo'); return res.item.id; },
+      `${payload.data.type} created · ${coById(company).name} notified`, id => { closeModal(); reopen(id)(); }).then(x => x ? undefined : false);
+  });
+}
+
+/* ---------- RFIs ---------- */
+function vRfi() {
+  let list = items('rfi'); const st = FILTER.rfi;
+  if (st === 'active') list = list.filter(i => i.status !== 'closed'); else if (st !== 'all') list = list.filter(i => i.status === st);
+  list.sort((a, b) => b.num - a.num);
+  $('#view').innerHTML = `<p class="mid" style="margin:0;max-width:72ch">An RFI goes from the person asking, through the RFI manager, to the architect or engineer who answers. Once answered, the ball goes back to the RFI manager, who closes it with one official response or returns it for more information.</p>
+  <div class="seg">${[['active', 'Not closed'], ['draft', 'Draft'], ['open', 'Open'], ['answered', 'Answered'], ['closed', 'Closed'], ['all', 'All']].map(([k, l]) => `<button data-st="${k}" aria-pressed="${st === k}">${l}</button>`).join('')}${can('rfi', 2) ? '<button data-act="newRfi" style="margin-left:auto;border-color:var(--lilac);color:var(--tx)">+ New RFI</button>' : ''}</div>
+  <section class="panel"><div class="list">${list.length ? list.map(rowFor).join('') : '<div class="empty">No RFIs here.</div>'}</div></section>`;
+  $$('[data-st]').forEach(b => b.onclick = () => { FILTER.rfi = b.dataset.st; vRfi(); });
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  bindRows($('#view'));
+}
+function openRfi(r) {
+  const evs = DB.events.filter(e => e.item === r.id).sort((a, b) => a.at.localeCompare(b.at));
+  const isMgr = r.manager === ME.id || ME.role === 'pm';
+  const isAssignee = r.assignees.includes(ME.id);
+  const acts = [];
+  if (r.status === 'draft' && (r.created_by === ME.id || isMgr)) acts.push(['send', 'Send RFI', 'pri']);
+  if (['open', 'answered'].includes(r.status) && isMgr && evs.some(e => e.kind === 'response')) acts.push(['close', 'Close with official response', 'ok']);
+  if (r.status === 'answered' && isMgr) acts.push(['return', 'Return to assignees', '']);
+  if (r.status === 'closed' && isMgr) acts.push(['reopen', 'Reopen', '']);
+  openDrawer(`RFI-${String(r.num).padStart(3, '0')}`, `
+    <div><h3 class="disp" style="font-size:24px;line-height:1.05">${esc(r.title)}</h3><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pill(RFI_STATUS, r.status)}${overdue(r) ? '<span class="pill c-red">Overdue</span>' : ''}</div></div>
+    ${r.bic.length ? `<div class="bic"><span class="ball"></span><span>Ball in court: <b>${esc(r.bic.map(uname).join(', '))}</b></span></div>` : ''}
+    <dl class="kv"><div><dt>Due</dt><dd>${fmtD(r.due)}</dd></div><div><dt>Drawing / spec</dt><dd>${esc(r.ref)}</dd></div>
+      <div><dt>RFI manager</dt><dd>${esc(uname(r.manager))}</dd></div><div><dt>Assignees</dt><dd>${esc(r.assignees.map(uname).join(', '))}</dd></div>
+      <div><dt>Cost impact</dt><dd>${esc(r.cost)}</dd></div><div><dt>Schedule impact</dt><dd>${esc(r.sched)}</dd></div>
+      <div><dt>Received from</dt><dd>${esc(uname(r.created_by))} · ${esc(coById((userById(r.created_by) || {}).company).name)}</dd></div>${r.linked ? `<div><dt>Linked item</dt><dd><a href="#" data-item="${r.linked}">${esc(itemLabel(DB.items.find(i => i.id === r.linked)))}</a></dd></div>` : ''}</dl>
+    <div><div class="eyebrow">Question</div><p style="margin:6px 0 0;white-space:pre-wrap">${esc(r.question)}</p></div>
+    ${r.suggestion ? `<div><div class="eyebrow">Suggested answer</div><p class="mid" style="margin:6px 0 0;white-space:pre-wrap">${esc(r.suggestion)}</p></div>` : ''}
+    ${acts.length ? `<div class="actions">${acts.map(([k, l, c]) => `<button class="btn ${c}" data-ra="${k}">${l}</button>`).join('')}</div>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:10px">Responses & activity</div><div class="timeline">${evs.map(e => evRow(e) + (['open', 'answered'].includes(r.status) && isMgr && e.kind === 'response' && !e.official ? `<div style="padding-left:42px"><button class="btn sm ghost" data-off="${e.id}">Mark as official response</button></div>` : '')).join('')}</div></div>
+    ${r.status !== 'draft' && r.status !== 'closed' && can('rfi', 2) && (isAssignee || isMgr || r.created_by === ME.id) ? composer(isAssignee ? 'Post a response' : 'Add a comment', isAssignee) : r.status !== 'draft' && r.status !== 'closed' && can('rfi', 1) ? '<p class="fine">You can read this RFI. Only the assignees and the RFI manager can respond.</p>' : ''}`, 'RFIs', d => {
+    bindRows(d);
+    $$('[data-ra]', d).forEach(b => b.onclick = () => {
+      const k = b.dataset.ra; const to = k === 'close' ? 'closed' : 'open';
+      const note = { send: 'RFI sent', close: 'Closed with official response', 'return': 'Returned to assignees for more information', reopen: 'Reopened' }[k];
+      mutate(() => api('/site/item/transition', { id: r.id, to, note }), `RFI-${String(r.num).padStart(3, '0')} → ${RFI_STATUS[to].l}`, reopen(r.id));
+    });
+    $$('[data-off]', d).forEach(b => b.onclick = () => mutate(() => api('/site/rfi/official', { id: r.id, event_id: b.dataset.off }), 'Official response set', reopen(r.id)));
+    bindComposer(d, r, () => openRfi(r), isAssignee ? 'response' : 'comment');
+  });
+}
+function rfiForm() {
+  const designers = DB.users.filter(u => u.role === 'design' && u.status === 'active');
+  if (!designers.length) { toast('Invite the architect or engineer to this project first. RFIs go to them.', true); return; }
+  openModal('New RFI', `
+    <div class="field"><label for="rf_t">Subject</label><input id="rf_t" maxlength="120" placeholder="e.g. Ceiling height at corridor bulkhead"></div>
+    <div class="field"><label for="rf_q">Question</label><textarea id="rf_q" placeholder="What is unclear or in conflict, and where"></textarea></div>
+    <div class="field"><label for="rf_s">Suggested answer (optional)</label><textarea id="rf_s" style="min-height:60px"></textarea></div>
+    <div class="f2"><div class="field"><label for="rf_ref">Drawing or spec</label><input id="rf_ref" placeholder="A-101 rev 2"></div><div class="field"><label for="rf_due">Answer needed by</label><input id="rf_due" type="date" value="${dOff(7)}"></div></div>
+    <div class="f2"><div class="field"><label for="rf_a">Assign to</label><select id="rf_a">${designers.map(u => `<option value="${u.id}">${esc(u.name)} · ${esc(coById(u.company).name)}</option>`).join('')}</select></div>
+      <div class="field"><label for="rf_c">Cost impact</label><select id="rf_c"><option>TBD</option><option>Yes</option><option>No</option></select></div></div>
+    <p class="fine" style="margin:0">${ME.role === 'pm' ? 'Sending now puts the ball in the assignee\'s court.' : 'Your RFI saves as a draft. The RFI manager reviews it and sends it on.'}</p>`, ME.role === 'pm' ? 'Send RFI' : 'Save draft', m => {
+    const t = $('#rf_t', m).value.trim(), q = $('#rf_q', m).value.trim(); if (!t || !q) { toast('Add a subject and the question.', true); return false; }
+    const direct = ME.role === 'pm';
+    return mutate(async () => (await api('/site/item/create', { item: { kind: 'rfi', project_id: PID, title: t, ref: $('#rf_ref', m).value.trim() || null, due_on: $('#rf_due', m).value || null, data: { question: q, suggestion: $('#rf_s', m).value.trim(), cost: $('#rf_c', m).value, sched: 'TBD', assignees: $('#rf_a', m).value ? [$('#rf_a', m).value] : [] } }, note: direct ? 'RFI created and sent' : 'Draft RFI submitted to the RFI manager' })).item.id,
+      direct ? 'RFI sent' : 'RFI saved as a draft for the RFI manager', id => { closeModal(); reopen(id)(); }).then(x => x ? undefined : false);
+  });
+}
+
+/* ---------- Submittals ---------- */
+function vSub() {
+  let list = items('submittal'); const st = FILTER.sub;
+  if (st === 'active') list = list.filter(i => ['draft', 'open', 'revise'].includes(i.status)); else if (st !== 'all') list = list.filter(i => i.status === st);
+  list.sort((a, b) => a.spec.localeCompare(b.spec));
+  $('#view').innerHTML = `<p class="mid" style="margin:0;max-width:72ch">Each submittal runs a set workflow: the trade submits, JCC reviews, then the architect returns it with a stamp. Whoever holds the current step has the ball.</p>
+  <div class="seg">${[['active', 'Active'], ['open', 'In review'], ['revise', 'Revise & resubmit'], ['approved', 'Approved'], ['all', 'All']].map(([k, l]) => `<button data-st="${k}" aria-pressed="${st === k}">${l}</button>`).join('')}${can('submittal', 2) && ME.role !== 'design' ? '<button data-act="newSub" style="margin-left:auto;border-color:var(--lilac);color:var(--tx)">+ New submittal</button>' : ''}</div>
+  <section class="panel"><div class="list">${list.length ? list.map(rowFor).join('') : '<div class="empty">No submittals here.</div>'}</div></section>`;
+  $$('[data-st]').forEach(b => b.onclick = () => { FILTER.sub = b.dataset.st; vSub(); });
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  bindRows($('#view'));
+}
+const STEP_LBL = { for_record: ['For record only', 'cyan'], submitted: ['Submitted', 'green'], approved: ['Approved', 'green'], approved_noted: ['Approved as noted', 'cyan'], revise: ['Revise & resubmit', 'purple'], rejected: ['Rejected', 'red'], pending: ['Waiting', 'dim'] };
+function openSub(s) {
+  const cur = s.steps.find(x => x.st === 'pending');
+  const myTurn = cur && (cur.uid === ME.id || (ME.role === 'pm' && cur.role === 'CM review'));
+  const evs = DB.events.filter(e => e.item === s.id).sort((a, b) => a.at.localeCompare(b.at));
+  let acts = '';
+  if (myTurn && s.status !== 'revise') acts = cur.role === 'Submitter' ? '<button class="btn pri" data-sd="submitted">Submit for review</button>' : '<button class="btn ok" data-sd="approved">Approve</button><button class="btn" data-sd="approved_noted">Approved as noted</button><button class="btn" data-sd="revise">Revise & resubmit</button><button class="btn" data-sd="for_record">For record only</button><button class="btn warn" data-sd="rejected">Reject</button>';
+  if (s.status === 'revise' && (ME.company === s.company || ME.role === 'pm')) acts = `<button class="btn pri" data-sd="newrev">Create revision ${s.rev + 1}</button>`;
+  openDrawer(`${s.spec}-${s.n}`, `
+    <div><div class="eyebrow">Spec section ${esc(s.spec)} · ${esc(s.type)} · Rev ${s.rev}</div><h3 class="disp" style="font-size:24px;line-height:1.05;margin-top:4px">${esc(s.title)}</h3><div style="margin-top:8px">${pill(SUB_STATUS, s.status)}</div></div>
+    ${s.bic.length ? `<div class="bic"><span class="ball"></span><span>Ball in court: <b>${esc(s.bic.map(uname).join(', '))}</b></span></div>` : ''}
+    <dl class="kv"><div><dt>Responsible contractor</dt><dd>${esc(coById(s.company).name)}</dd></div><div><dt>Required by</dt><dd>${fmtD(s.due)}</dd></div></dl>
+    <div><div class="eyebrow" style="margin-bottom:6px">Workflow</div><div class="steps">${s.steps.map(x => { const [l, c] = STEP_LBL[x.st]; return `<div class="step ${x.st !== 'pending' ? 'done' : ''} c-${c}"><span class="dot"></span><div style="color:var(--tx)"><b style="font-size:14px">${esc(x.role)}</b> <span class="dim" style="font-size:13px">· ${esc(uname(x.uid))}</span>${x.note ? `<div class="mid" style="font-size:13px">${esc(x.note)}</div>` : ''}</div><span style="font-size:12px;text-align:right">${l}${x.at ? `<br><span class="dim">${fmtD(x.at)}</span>` : ''}</span></div>`; }).join('')}</div></div>
+    ${acts ? `<div class="actions">${acts}</div>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:10px">Activity</div><div class="timeline">${evs.length ? evs.map(evRow).join('') : '<p class="fine">No comments yet.</p>'}</div></div>
+    ${can('submittal', 2) ? composer() : ''}`, 'Submittals', d => {
+    $$('[data-sd]', d).forEach(b => b.onclick = async () => {
+      const v = b.dataset.sd;
+      if (v === 'newrev') return mutate(() => api('/site/submittal/decide', { id: s.id, decision: 'new_revision' }), `Revision ${s.rev + 1} started`, reopen(s.id));
+      let note = '';
+      if (['approved_noted', 'revise', 'rejected'].includes(v)) { note = await promptModal(STEP_LBL[v][0], 'Add review comments for the contractor.', 'Comments'); if (note == null) return; }
+      mutate(() => api('/site/submittal/decide', { id: s.id, decision: v, note }), `${s.spec}-${s.n}: ${STEP_LBL[v][0]}`, reopen(s.id));
+    });
+    bindComposer(d, s, () => openSub(s));
+  });
+}
+function subForm() {
+  const subOrgs = new Set(DB.users.filter(u => u.role === 'sub').map(u => u.company)); const cos = DB.companies.filter(c => subOrgs.has(c.id));
+  if (!cos.length) { toast('Invite the subcontractor first. Submittals belong to their company.', true); return; }
+  if (!DB.users.some(u => u.role === 'design')) { toast('Invite the architect or engineer first. They review submittals.', true); return; }
+  openModal('New submittal', `<div class="f2"><div class="field"><label for="sf_spec">Spec section</label><input id="sf_spec" placeholder="09 51 13" inputmode="numeric"></div><div class="field"><label for="sf_type">Type</label><select id="sf_type"><option>Product data</option><option>Shop drawing</option><option>Sample</option><option>Mockup</option><option>Closeout / O&M</option></select></div></div>
+    <div class="field"><label for="sf_t">Title</label><input id="sf_t" placeholder="Acoustical ceiling tiles"></div>
+    <div class="f2"><div class="field"><label for="sf_co">Responsible contractor</label><select id="sf_co" ${ME.role === 'sub' ? 'disabled' : ''}>${cos.map(c => `<option value="${c.id}" ${ME.company === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div><div class="field"><label for="sf_due">Required by</label><input id="sf_due" type="date" value="${dOff(14)}"></div></div>
+    <p class="fine" style="margin:0">Workflow: contractor submits → JCC Management review → the project's architect or engineer.</p>`, 'Create', m => {
+    const spec = $('#sf_spec', m).value.trim(), t = $('#sf_t', m).value.trim(); if (!/^\d{2}\s?\d{2}\s?\d{2}$/.test(spec) || !t) { toast('Use a 6-digit spec section like 09 51 13, and add a title.', true); return false; }
+    const company = ME.role === 'sub' ? ME.company : $('#sf_co', m).value; const spec2 = spec.replace(/\s/g, '').replace(/(\d{2})(\d{2})(\d{2})/, '$1 $2 $3');
+    return mutate(async () => (await api('/site/item/create', { item: { kind: 'submittal', project_id: PID, title: t, ref: spec2, organization_id: company, due_on: $('#sf_due', m).value || null, data: { type: $('#sf_type', m).value } }, note: 'Submittal created' })).item.id, `Submittal ${spec2} created`, id => { closeModal(); reopen(id)(); }).then(x => x ? undefined : false);
+  });
+}
+
+/* ---------- Daily log ---------- */
+let LOGDATE = null;
+function vLog() {
+  const logs = items('log').sort((a, b) => b.date.localeCompare(a.date));
+  if (!LOGDATE) LOGDATE = dOff(0);
+  let L = logs.find(l => l.date === LOGDATE);
+  const edit = can('log', 3) && (!L || L.status === 'draft');
+  const subOrgs = new Set(DB.users.filter(u => u.role === 'sub').map(u => u.company)); const subs = DB.companies.filter(c => subOrgs.has(c.id));
+  const total = L ? L.manpower.reduce((a, m) => a + (+m.workers || 0), 0) : 0, hrs = L ? L.manpower.reduce((a, m) => a + (+m.workers || 0) * (+m.hours || 0), 0) : 0;
+  const ta = (id, label, val, ph) => `<div class="field"><label for="${id}">${label}</label>${edit ? `<textarea id="${id}" placeholder="${ph}">${esc(val || '')}</textarea>` : `<p style="margin:0;white-space:pre-wrap">${esc(val || '—')}</p>`}</div>`;
+  $('#view').innerHTML = `<div class="grid3" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
+  <section class="panel log-day"><header><h2>${new Date(LOGDATE + 'T12:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</h2><div class="r">${L ? (L.status === 'signed' ? pill({ s: { l: 'Signed', c: 'green' } }, 's') : pill({ s: { l: 'Draft', c: 'orange' } }, 's')) : ''}</div></header>
+    ${!L ? (edit ? `<div class="empty">No log for this day yet. <button class="btn pri sm" id="startLog">Start today's log</button></div>` : '<div class="empty">No log was filed for this day.</div>') : `
+    ${L.status === 'signed' ? `<div class="locked">✓ Signed by ${esc(uname(L.signed_by))} · ${fmtDT(L.signed_at)}. Locked.</div>` : ''}
+    <div class="f2" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="field"><label for="lw_t">Temp °F</label>${edit ? `<input id="lw_t" type="number" inputmode="numeric" value="${L.weather.temp}">` : `<b class="mono">${L.weather.temp === '' ? '—' : L.weather.temp + '°F'}</b>`}</div><div class="field"><label for="lw_c">Conditions</label>${edit ? `<input id="lw_c" value="${esc(L.weather.cond)}">` : `<b>${esc(L.weather.cond)}</b>`}</div><div class="field"><label for="lw_w">Wind</label>${edit ? `<input id="lw_w" value="${esc(L.weather.wind)}">` : `<b>${esc(L.weather.wind)}</b>`}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Manpower · ${total} workers · ${hrs} labor hours</div>
+      ${edit ? `<div style="display:grid;gap:8px" id="mp"><div class="mp-row eyebrow" aria-hidden="true"><span>Company</span><span>Workers</span><span>Hours each</span><span></span></div>${L.manpower.map((m, i) => `<div class="mp-row"><select aria-label="Company" data-mp="${i}" data-k="company">${subs.map(c => `<option value="${c.id}" ${m.company === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select><input aria-label="Workers" type="number" inputmode="numeric" min="0" data-mp="${i}" data-k="workers" value="${m.workers}"><input aria-label="Hours each" type="number" inputmode="numeric" min="0" data-mp="${i}" data-k="hours" value="${m.hours}"><button class="btn sm ghost" aria-label="Remove row" data-rm="${i}">×</button></div>`).join('')}<button class="btn sm" id="addMp" style="justify-self:start">+ Add company</button></div>`
+      : `<div class="tbl-wrap"><table><thead><tr><th>Company</th><th class="num">Workers</th><th class="num">Hours</th></tr></thead><tbody>${L.manpower.map(m => `<tr><td>${esc(coById(m.company).name)}</td><td class="num">${m.workers}</td><td class="num">${m.workers * m.hours}</td></tr>`).join('')}</tbody></table></div>`}</div>
+    ${ta('lg_work', 'Work performed', L.work, 'What got done, by area')}
+    <div class="f2">${ta('lg_del', 'Deliveries', L.deliveries, 'Material, quantity, dock')}${ta('lg_vis', 'Visitors', L.visitors, 'Name, company, time')}</div>
+    <div class="f2">${ta('lg_saf', 'Safety & incidents', L.safety, 'Toolbox talks, observations, incidents')}${ta('lg_dly', 'Delays', L.delays, 'Cause and impact')}</div>
+    ${edit ? `<div class="field"><label for="lg_ph">Add photo</label><input id="lg_ph" type="file" accept="image/*" capture="environment"></div>` : ''}
+    ${L.photos.length ? `<div class="photos">${L.photos.map(p => `<img src="${p}" alt="Daily log photo">`).join('')}</div>` : ''}
+    ${edit ? `<div class="actions"><button class="btn" id="saveLog">Save draft</button><button class="btn ok" id="signLog">Sign & lock</button><button class="btn ghost" id="copyLog">Copy as text</button></div>` : `<div class="actions"><button class="btn ghost" id="copyLog">Copy as text</button></div>`}`}
+  </section>
+  <section class="panel"><header><h2>Past logs</h2></header><div class="list">
+    ${(logs.find(l => l.date === dOff(0)) ? [] : [{ date: dOff(0), status: 'none' }]).concat(logs).map(l => `<button class="row" data-ld="${l.date}" ${l.date === LOGDATE ? 'style="background:var(--bg3)"' : ''}><span class="main"><b>${new Date(l.date + 'T12:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</b><span>${l.manpower ? l.manpower.reduce((a, m) => a + (+m.workers || 0), 0) + ' workers · ' + esc(l.weather.cond) : 'Not started'}</span></span><span class="side">${l.status === 'signed' ? '<span class="pill c-green">Signed</span>' : l.status === 'draft' ? '<span class="pill c-orange">Draft</span>' : '<span class="pill c-dim">None</span>'}</span></button>`).join('')}
+  </div></section></div>`;
+  $$('[data-ld]').forEach(b => b.onclick = () => { LOGDATE = b.dataset.ld; vLog(); });
+  const sl = $('#startLog'); if (sl) sl.onclick = () => { const prev = logs[0]; mutate(() => api('/site/item/create', { item: { kind: 'log', project_id: PID, title: LOGDATE, data: { date: LOGDATE, weather: { temp: '', cond: '', wind: '' }, manpower: prev ? prev.manpower.map(m => ({ ...m })) : [], work: '', deliveries: '', visitors: '', safety: '', delays: '' } }, note: 'Started the daily log' }), 'Daily log started', () => vLog()); };
+  if (!L || !edit) { const c = $('#copyLog'); if (c) c.onclick = () => copyText(logText(L)); return; }
+  const persist = () => api('/site/item/update', { id: L.id, patch: { data: { date: L.date, weather: L.weather, manpower: L.manpower, work: L.work, deliveries: L.deliveries, visitors: L.visitors, safety: L.safety, delays: L.delays } } });
+  const collect = () => { L.weather = { temp: $('#lw_t').value === '' ? '' : +$('#lw_t').value, cond: $('#lw_c').value, wind: $('#lw_w').value }; L.work = $('#lg_work').value; L.deliveries = $('#lg_del').value; L.visitors = $('#lg_vis').value; L.safety = $('#lg_saf').value; L.delays = $('#lg_dly').value; $$('[data-mp]').forEach(i => { L.manpower[+i.dataset.mp][i.dataset.k] = i.dataset.k === 'company' ? i.value : +i.value || 0; }); };
+  $('#addMp').onclick = () => { collect(); if (!subs.length) { toast('Invite a subcontractor first, so there is a company to log.', true); return; } L.manpower.push({ company: subs[0].id, workers: 1, hours: 8 }); vLog(); };
+  $$('[data-rm]').forEach(b => b.onclick = () => { collect(); L.manpower.splice(+b.dataset.rm, 1); vLog(); });
+  $$('[data-mp]').forEach(i => i.onchange = () => collect());
+  $('#lg_ph').onchange = async e => { const f = e.target.files[0]; if (!f) return; collect(); mutate(async () => { await persist(); await uploadPhoto(L.id, f, 'Daily log photo'); }, 'Photo added', () => vLog()); };
+  $('#saveLog').onclick = () => { collect(); mutate(() => persist(), 'Draft saved', () => vLog()); };
+  $('#signLog').onclick = async () => { collect(); if (!L.work.trim()) { toast('Add the work performed before signing.', true); return; } if (!(await confirmModal('Sign and lock this log?', 'A signed log is the record for this day and can no longer be edited.', 'Sign & lock'))) return; mutate(async () => { await persist(); await api('/site/item/transition', { id: L.id, to: 'signed', note: `Signed the daily log for ${fmtD(L.date)}` }); }, 'Daily log signed', () => vLog()); };
+  $('#copyLog').onclick = () => { collect(); copyText(logText(L)); };
+}
+function logText(L) {
+  if (!L) return '';
+  return `DAILY LOG · ${proj().name} · 2 Park Avenue\n${new Date(L.date + 'T12:00').toDateString()}\nWeather: ${L.weather.temp}°F, ${L.weather.cond}${L.weather.wind ? ', wind ' + L.weather.wind : ''}\n\nMANPOWER\n${L.manpower.map(m => `- ${coById(m.company).name}: ${m.workers} × ${m.hours}h`).join('\n')}\n\nWORK PERFORMED\n${L.work || '—'}\n\nDELIVERIES\n${L.deliveries || '—'}\n\nVISITORS\n${L.visitors || '—'}\n\nSAFETY\n${L.safety || '—'}\n\nDELAYS\n${L.delays || '—'}\n\n${L.status === 'signed' ? 'Signed by ' + uname(L.signed_by) + ' · ' + fmtDT(L.signed_at) : 'DRAFT'}`;
+}
+
+/* ---------- Change orders ---------- */
+function vChanges() {
+  const p = proj(); const cos = items('co').sort((a, b) => a.num - b.num);
+  const appr = cos.filter(c => c.status === 'approved').reduce((a, c) => a + c.amount, 0), pend = cos.filter(c => c.status === 'pending').reduce((a, c) => a + c.amount, 0), draft = cos.filter(c => c.status === 'draft').reduce((a, c) => a + c.amount, 0);
+  const rev = p.contract + appr, max = p.contract + Math.max(0, appr) + Math.max(0, pend) + Math.max(0, draft);
+  $('#view').innerHTML = `<section class="grid3">
+    <div class="panel"><div class="eyebrow">Original contract</div><div class="money mono">${money(p.contract)}</div></div>
+    <div class="panel"><div class="eyebrow">Approved changes</div><div class="money mono c-green">${money(appr)}</div><div class="dim" style="font-size:13px">Revised contract <b class="mono" style="color:var(--tx)">${money(rev)}</b></div></div>
+    <div class="panel"><div class="eyebrow">Pending exposure</div><div class="money mono c-gold">${money(pend + draft)}</div><div class="dim" style="font-size:13px">${money(pend)} with the owner · ${money(draft)} in draft</div></div>
+  </section>
+  <section class="panel"><header><h2>Contract position</h2></header><div class="bar3" role="img" aria-label="Contract, approved and pending change orders"><i style="width:${p.contract / max * 100}%;background:var(--lilac)"></i><i style="width:${Math.max(0, appr) / max * 100}%;background:var(--green)"></i><i style="width:${Math.max(0, pend) / max * 100}%;background:var(--gold)"></i><i style="width:${Math.max(0, draft) / max * 100}%;background:var(--bd2)"></i></div>
+    <div class="legend" style="margin-top:8px"><span class="c-lilac"><i></i><span style="color:var(--mid)">Original</span></span><span class="c-green"><i></i><span style="color:var(--mid)">Approved</span></span><span class="c-gold"><i></i><span style="color:var(--mid)">Pending owner</span></span><span class="c-dim"><i></i><span style="color:var(--mid)">Draft</span></span></div></section>
+  <section class="panel"><header><h2>Change orders</h2>${can('changes', 3) ? '<div class="r"><button class="btn pri sm" data-act="newCo">+ New change order</button></div>' : ''}</header>
+    <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Title</th><th>Reason</th><th class="num">Days</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>${cos.map(c => `<tr data-item="${c.id}" style="cursor:pointer"><td class="mono">CO-${String(c.num).padStart(3, '0')}</td><td style="white-space:normal;min-width:220px">${esc(c.title)}</td><td class="dim">${esc(c.reason)}</td><td class="num">${c.days}</td><td class="num">${money(c.amount)}</td><td>${pill(CO_STATUS, c.status)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  bindRows($('#view'));
+}
+function openCo(c) {
+  const evs = DB.events.filter(e => e.item === c.id).sort((a, b) => a.at.localeCompare(b.at));
+  let acts = '';
+  if (c.status === 'draft' && can('changes', 3)) acts = '<button class="btn pri" data-ca="send">Send to owner</button>';
+  if (c.status === 'pending' && ME.role === 'owner') acts = '<button class="btn ok" data-ca="approved">Approve</button><button class="btn warn" data-ca="rejected">Reject</button>';
+  openDrawer(`CO-${String(c.num).padStart(3, '0')}`, `<div><h3 class="disp" style="font-size:24px;line-height:1.05">${esc(c.title)}</h3><div style="margin-top:8px">${pill(CO_STATUS, c.status)}</div></div>
+    ${c.bic && c.bic.length ? `<div class="bic"><span class="ball"></span><span>Ball in court: <b>${esc(c.bic.map(uname).join(', '))}</b></span></div>` : ''}
+    <dl class="kv"><div><dt>Amount</dt><dd class="money mono" style="font-size:26px">${money(c.amount)}</dd></div><div><dt>Schedule impact</dt><dd>${c.days} day${c.days === 1 ? '' : 's'}</dd></div><div><dt>Reason</dt><dd>${esc(c.reason)}</dd></div><div><dt>Prepared by</dt><dd>${esc(uname(c.created_by))}</dd></div>${c.decided_by ? `<div><dt>${c.status === 'approved' ? 'Approved' : 'Decided'} by</dt><dd>${esc(uname(c.decided_by))} · ${fmtD(c.decided_at)}</dd></div>` : ''}</dl>
+    ${acts ? `<div class="actions">${acts}</div>` : ''}
+    <div><div class="eyebrow" style="margin-bottom:10px">Activity</div><div class="timeline">${evs.length ? evs.map(evRow).join('') : '<p class="fine">No activity yet.</p>'}</div></div>`, 'Change Orders', d => {
+    $$('[data-ca]', d).forEach(b => b.onclick = async () => {
+      const v = b.dataset.ca;
+      if (v !== 'send' && !(await confirmModal(v === 'approved' ? `Approve ${money(c.amount)}?` : 'Reject this change order?', v === 'approved' ? 'This adds the amount to the revised contract and records your approval.' : 'JCC Management will be notified.', v === 'approved' ? 'Approve' : 'Reject'))) return;
+      const to = v === 'send' ? 'pending' : v;
+      if (to === 'pending' && !DB.users.some(u => u.role === 'owner' && u.status === 'active')) { toast("Invite the owner's representative first. They approve change orders.", true); return; }
+      mutate(() => api('/site/item/transition', { id: c.id, to, note: v === 'send' ? 'Sent to owner for approval' : v === 'approved' ? 'Approved by owner' : 'Rejected by owner' }), `CO-${String(c.num).padStart(3, '0')} → ${CO_STATUS[to].l}`, reopen(c.id));
+    });
+  });
+}
+function coForm() {
+  openModal('New change order', `<div class="field"><label for="cf_t">Title</label><input id="cf_t" placeholder="Add blocking for TV mounts at 20A"></div>
+    <div class="f2"><div class="field"><label for="cf_a">Amount (USD)</label><input id="cf_a" type="number" inputmode="decimal" placeholder="4500 or -2000 for a credit"></div><div class="field"><label for="cf_d">Schedule days</label><input id="cf_d" type="number" inputmode="numeric" value="0"></div></div>
+    <div class="field"><label for="cf_r">Reason / source</label><input id="cf_r" placeholder="Bulletin, RFI or owner request"></div>`, 'Save draft', m => {
+    const t = $('#cf_t', m).value.trim(), a = parseFloat($('#cf_a', m).value); if (!t || isNaN(a)) { toast('Add a title and an amount.', true); return false; }
+    return mutate(async () => (await api('/site/item/create', { item: { kind: 'co', project_id: PID, title: t, data: { amount: a, days: +$('#cf_d', m).value || 0, reason: $('#cf_r', m).value.trim() || '—' } }, note: 'Draft created' })).item.id, 'Change order saved as draft', id => { closeModal(); reopen(id)(); }).then(x => x ? undefined : false);
+  });
+}
+
+/* ---------- Building ops (NYC): permits, insurance, freight & after-hours bookings ---------- */
+let BTAB = 'bookings';
+function coiState(c) { const d = daysTo(c.expires); return d < 0 ? ['Expired', 'red'] : d <= 30 ? [`Expires in ${d}d`, 'orange'] : ['Current', 'green']; }
+function vBuilding() {
+  const tabs = [['bookings', 'Freight & after-hours'], ['coi', 'Insurance (COIs)'], ['permits', 'Permits'], ['rules', 'Building rules']].filter(([k]) => !(k === 'permits' && ME.role === 'sub'));
+  let body = '';
+  if (BTAB === 'bookings') {
+    let bks = DB.bookings.slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+    if (ME.role === 'sub') bks = bks.filter(b => b.company === ME.company);
+    const approver = can('building', 3);
+    body = `<section class="panel"><header><h2>Bookings</h2><div class="r">${can('building', 2) ? '<button class="btn pri sm" data-act="newBooking">+ Request booking</button>' : ''}</div></header>
+      <div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Window</th><th>Type</th><th>Company</th><th>Purpose</th><th>Status</th>${approver ? '<th></th>' : ''}</tr></thead><tbody>${bks.map(b => `<tr><td>${fmtD(b.date)}${b.date === dOff(0) ? ' <span class="tag">TODAY</span>' : ''}</td><td class="mono">${b.start}–${b.end}</td><td>${esc(b.type)}</td><td>${esc(coById(b.company).name)}</td><td style="white-space:normal;min-width:180px">${esc(b.purpose)}${b.type === 'After-hours work' ? `<div style="font-size:12px" class="${b.ahv ? 'c-green' : 'c-orange'}">${b.ahv ? 'DOB AHV ' + esc(b.ahv) : 'DOB After Hours Variance not on file'}</div>` : ''}</td><td>${pill(BOOK_STATUS, b.status)}</td>${approver ? `<td>${b.status === 'pending' ? `<div class="actions"><button class="btn sm ok" data-bk="${b.id}" data-v="approved">Approve</button><button class="btn sm warn" data-bk="${b.id}" data-v="denied">Deny</button></div>` : ''}</td>` : ''}</tr>`).join('') || `<tr><td colspan="7" class="dim">No bookings.</td></tr>`}</tbody></table></div>
+      <p class="fine" style="margin:10px 0 0">A booking request is blocked automatically when the company's certificate of insurance has expired.</p></section>`;
+  }
+  if (BTAB === 'coi') {
+    let list = DB.cois; if (ME.role === 'sub') list = list.filter(c => c.company === ME.company);
+    body = `<section class="panel"><header><h2>Certificates of insurance</h2><span class="dim" style="font-size:13px">Each must name the building owner and JCC Management as additional insured.</span>${can('building', 3) ? '<div class="r"><button class="btn pri sm" id="addCoi">+ Add certificate</button></div>' : ''}</header>
+      <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Carrier</th><th>GL occ / agg</th><th>Umbrella</th><th>Workers' comp</th><th>Addl. insured</th><th>Expires</th><th>Status</th>${can('building', 3) ? '<th></th>' : ''}</tr></thead><tbody>${list.length ? '' : '<tr><td colspan="9" class="dim">No certificates on file yet.</td></tr>'}${list.map(c => { const [l, k] = coiState(c); return `<tr><td>${esc(coById(c.company).name)}</td><td>${esc(c.carrier)}</td><td class="mono">${esc(c.gl)}</td><td class="mono">${esc(c.umb)}</td><td>${esc(c.wc)}</td><td>${c.addl ? '<span class="c-green">Yes</span>' : '<span class="c-red">Missing</span>'}</td><td class="mono">${fmtD(c.expires)}</td><td>${pill({ s: { l, c: k } }, 's')}</td>${can('building', 3) ? `<td><button class="btn sm" data-coi="${c.id}">Update</button></td>` : ''}</tr>`; }).join('')}</tbody></table></div>
+      <p class="fine" style="margin:10px 0 0">Bookings for a company are refused while its certificate is missing or expired.</p></section>`;
+  }
+  if (BTAB === 'permits') {
+    body = `<section class="panel"><header><h2>DOB permits & filings</h2>${can('building', 3) ? '<div class="r"><button class="btn pri sm" id="addPermit">+ Add permit</button></div>' : ''}</header>
+      <div class="tbl-wrap"><table><thead><tr><th>Job / filing</th><th>Type</th><th>Scope</th><th>Project</th><th>Status</th><th>Expires</th></tr></thead><tbody>${DB.permits.length ? '' : '<tr><td colspan="6" class="dim">No permits recorded yet.</td></tr>'}${DB.permits.map(p => { const d = p.expires ? daysTo(p.expires) : null; return `<tr ${can('building', 3) ? `data-permit="${p.id}" style="cursor:pointer"` : ''}><td class="mono">${esc(p.job)}</td><td>${esc(p.type)}</td><td>${esc(p.scope)}</td><td class="dim">${esc((DB.projects.find(x => x.id === p.pid) || {}).name || '—')}</td><td>${esc(p.status)}</td><td class="mono ${d != null && d <= 30 ? 'c-orange' : ''}">${fmtD(p.expires)}${d != null ? ` <span class="dim">(${d}d)</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div></section>`;
+  }
+  if (BTAB === 'rules') {
+    body = `<section class="panel"><header><h2>Building rules for contractors</h2></header>
+      <ul class="rules"><li>Freight elevator by booking only, 7:00 AM to 4:30 PM weekdays. Deliveries through the 32nd Street loading dock.</li><li>Core drilling, demolition and other noisy work after 6:00 PM on weekdays or on weekends, with an approved after-hours booking.</li><li>Any work before 7:00 AM, after 6:00 PM or on weekends also needs a DOB After Hours Variance, filed by the contractor in DOB NOW at least 3 business days ahead.</li><li>Current certificate of insurance on file before any worker enters the building.</li><li>Sign in at the lobby security desk; badges stay visible on site.</li><li>Hot work needs a permit from the superintendent and a fire watch for 30 minutes after.</li><li>Protect the lobby and passenger elevators. No materials in passenger cars.</li><li>Leave the floor broom-clean every day. Debris goes out through the freight elevator only.</li></ul></section>`;
+  }
+  $('#view').innerHTML = `<div class="seg" role="tablist">${tabs.map(([k, l]) => `<button role="tab" data-bt="${k}" aria-pressed="${BTAB === k}" aria-selected="${BTAB === k}">${l}</button>`).join('')}</div>${body}`;
+  $$('[data-bt]').forEach(b => b.onclick = () => { BTAB = b.dataset.bt; vBuilding(); });
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  $$('[data-bk]').forEach(b => b.onclick = () => { const bk = DB.bookings.find(x => x.id === b.dataset.bk); const to = b.dataset.v; mutate(() => api('/site/item/transition', { id: bk.id, to, note: `${bk.type} ${fmtD(bk.date)} ${bk.start}–${bk.end} ${BOOK_STATUS[to].l.toLowerCase()}` }), `Booking ${BOOK_STATUS[to].l.toLowerCase()} · ${coById(bk.company).name} notified`, () => vBuilding()); });
+  $$('[data-coi]').forEach(b => b.onclick = () => coiForm(DB.cois.find(c => c.id === b.dataset.coi)));
+  const ac = $('#addCoi'); if (ac) ac.onclick = () => coiForm(null);
+  const apm = $('#addPermit'); if (apm) apm.onclick = () => permitForm(null);
+  $$('[data-permit]').forEach(b => b.onclick = () => permitForm(DB.permits.find(p => p.id === b.dataset.permit)));
+}
+function openBooking() { BTAB = 'bookings'; go('building'); }
+function bookingForm() {
+  const subOrgs = new Set(DB.users.filter(u => u.role === 'sub').map(u => u.company)); const cos = DB.companies.filter(c => subOrgs.has(c.id) || c.id === ME.company);
+  openModal('Request a booking', `<div class="f2"><div class="field"><label for="bf_type">What</label><select id="bf_type"><option>Freight elevator</option><option>After-hours work</option><option>Loading dock</option></select></div><div class="field"><label for="bf_d">Date</label><input id="bf_d" type="date" value="${dOff(1)}"></div></div>
+    <div class="f2"><div class="field"><label for="bf_s">From</label><input id="bf_s" type="time" value="07:00"></div><div class="field"><label for="bf_e">To</label><input id="bf_e" type="time" value="08:00"></div></div>
+    <div class="field"><label for="bf_co">Company</label><select id="bf_co" ${ME.role === 'sub' ? 'disabled' : ''}>${cos.map(c => `<option value="${c.id}" ${ME.company === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="bf_p">Purpose</label><input id="bf_p" placeholder="e.g. Ceiling tile delivery, 12 boxes"></div>
+    <div class="field" id="bf_ahv_w" hidden><label for="bf_ahv">DOB After Hours Variance number</label><input id="bf_ahv" placeholder="From DOB NOW: Build"><span class="fine">DOB requires an AHV for work before 7 AM, after 6 PM or on weekends. File it in DOB NOW at least 3 business days ahead; one AHV covers up to 14 days.</span></div>`, 'Send request', m => {
+    const company = ME.role === 'sub' ? ME.company : $('#bf_co', m).value; const coi = DB.cois.find(c => c.company === company);
+    if (!coi && ME.role === 'sub') { toast('Your company has no certificate of insurance on file. Send it to JCC Management first.', true); return false; }
+    if (coi && daysTo(coi.expires) < 0) { toast(`${coById(company).name}'s insurance expired on ${fmtD(coi.expires)}. Upload a current certificate first.`, true); return false; }
+    const s = $('#bf_s', m).value, e = $('#bf_e', m).value, type = $('#bf_type', m).value; if (!$('#bf_p', m).value.trim() || e <= s) { toast('Add a purpose and an end time after the start.', true); return false; }
+    if (type === 'Freight elevator' && (s < '07:00' || e > '16:30')) { toast('Freight bookings run 7:00 AM to 4:30 PM. Request after-hours work for later.', true); return false; }
+    const clash = DB.bookings.find(b => b.type === type && b.date === $('#bf_d', m).value && b.status !== 'denied' && !(e <= b.start || s >= b.end));
+    if (clash && type !== 'After-hours work') { toast(`That window overlaps ${coById(clash.company).name} (${clash.start}–${clash.end}).`, true); return false; }
+    const date = $('#bf_d', m).value, purpose = $('#bf_p', m).value.trim();
+    return mutate(() => api('/site/item/create', { item: { kind: 'booking', project_id: PID, title: purpose, organization_id: company, data: { type, date, start: s, end: e, ahv: ($('#bf_ahv', m).value || '').trim() } }, note: `Requested ${type.toLowerCase()} ${fmtD(date)} ${s}–${e}` }),
+      ['pm', 'super'].includes(ME.role) ? 'Booked' : 'Request sent to JCC Management', () => { closeModal(); BTAB = 'bookings'; if (VIEW === 'building') vBuilding(); }).then(x => x ? undefined : false);
+  }, m => { $('#bf_type', m).onchange = e => $('#bf_ahv_w', m).hidden = e.target.value !== 'After-hours work'; });
+}
+function coiForm(c) {
+  const isNew = !c; c = c || { company: '', carrier: '', gl: '', umb: '', wc: 'Statutory', expires: '', addl: true };
+  const have = new Set(DB.cois.map(x => x.company)); const choices = DB.companies.filter(o => !have.has(o.id) && DB.users.some(u => u.company === o.id && u.role !== 'tenant'));
+  if (isNew && !choices.length) { toast('Every company on the project already has a certificate. Update it instead.', true); return; }
+  openModal(isNew ? 'Add a certificate of insurance' : `Insurance · ${coById(c.company).name}`, `${isNew ? `<div class="field"><label for="cif_co">Company</label><select id="cif_co">${choices.map(o => `<option value="${o.id}">${esc(o.name)}</option>`).join('')}</select></div>` : ''}
+    <div class="f2"><div class="field"><label for="cif_c">Carrier</label><input id="cif_c" value="${esc(c.carrier)}"></div><div class="field"><label for="cif_e">Expires</label><input id="cif_e" type="date" value="${c.expires}"></div></div>
+    <div class="f2"><div class="field"><label for="cif_g">GL occ / agg</label><input id="cif_g" value="${esc(c.gl)}" placeholder="2M / 4M"></div><div class="field"><label for="cif_u">Umbrella</label><input id="cif_u" value="${esc(c.umb)}" placeholder="5M"></div></div>
+    <div class="field"><label for="cif_w">Workers' comp</label><input id="cif_w" value="${esc(c.wc)}"></div>
+    <label style="display:flex;gap:10px;align-items:center;min-height:44px"><input type="checkbox" id="cif_a" style="width:22px;height:22px" ${c.addl ? 'checked' : ''}> Owner and JCC Management named as additional insured</label>
+    <div class="field"><label for="cif_f">Certificate PDF or photo (optional)</label><input id="cif_f" type="file" accept="application/pdf,image/*"><span class="fine">Stored privately. Only JCC Management and that company can open it.</span></div>`, 'Save', m => {
+    const exp = $('#cif_e', m).value; if (!exp) { toast('Add the expiry date from the certificate.', true); return false; }
+    const data = { carrier: $('#cif_c', m).value.trim(), gl: $('#cif_g', m).value.trim(), umb: $('#cif_u', m).value.trim(), wc: $('#cif_w', m).value.trim(), addl: $('#cif_a', m).checked };
+    const f = $('#cif_f', m).files[0];
+    return mutate(async () => {
+      let id = c.id;
+      if (isNew) { const org = $('#cif_co', m).value; id = (await api('/site/item/create', { item: { kind: 'coi', title: 'Certificate of insurance · ' + coById(org).name, organization_id: org, due_on: exp, data }, note: `Certificate added · expires ${fmtD(exp)}` })).item.id; }
+      else await api('/site/item/update', { id, patch: { due_on: exp, data } });
+      if (f) { if (/^image\//.test(f.type)) await uploadPhoto(id, f, 'Certificate'); else await uploadBlob(id, f, f.name, 'Certificate PDF'); }
+    }, 'Certificate saved', () => { closeModal(); BTAB = 'coi'; vBuilding(); }).then(x => x ? undefined : false);
+  });
+}
+function permitForm(p) {
+  const isNew = !p; p = p || { job: '', type: '', scope: '', status: 'Permit issued', expires: '', pid: PID };
+  openModal(isNew ? 'Add a permit or filing' : `Permit · ${p.job}`, `
+    <div class="f2"><div class="field"><label for="pf_j">DOB job number or filing</label><input id="pf_j" value="${esc(p.job)}" placeholder="M01284417-I1"></div><div class="field"><label for="pf_t">Type</label><input id="pf_t" value="${esc(p.type)}" placeholder="Alteration · GC/ME/SP"></div></div>
+    <div class="field"><label for="pf_s">Scope</label><input id="pf_s" value="${esc(p.scope)}"></div>
+    <div class="f2"><div class="field"><label for="pf_st">Status</label><input id="pf_st" value="${esc(p.status)}"></div><div class="field"><label for="pf_e">Expires</label><input id="pf_e" type="date" value="${p.expires}"></div></div>
+    <label style="display:flex;gap:10px;align-items:center;min-height:44px"><input type="checkbox" id="pf_p" style="width:22px;height:22px" ${p.pid ? 'checked' : ''}> Belongs to ${esc(proj().name)} (untick for building-wide)</label>`, 'Save', m => {
+    const job = $('#pf_j', m).value.trim(); if (!job) { toast('Add the job number or filing name.', true); return false; }
+    const data = { type: $('#pf_t', m).value.trim(), scope: $('#pf_s', m).value.trim(), status_text: $('#pf_st', m).value.trim() };
+    const due = $('#pf_e', m).value || null;
+    return mutate(() => isNew ? api('/site/item/create', { item: { kind: 'permit', project_id: $('#pf_p', m).checked ? PID : null, title: job, due_on: due, data }, note: 'Permit recorded' }) : api('/site/item/update', { id: p.id, patch: { title: job, due_on: due, data } }), 'Permit saved', () => { closeModal(); BTAB = 'permits'; vBuilding(); }).then(x => x ? undefined : false);
+  });
+}
+
+/* ---------- Directory, roles & invites ---------- */
+function permTable(roles) {
+  return `<div class="tbl-wrap"><table><thead><tr><th>Tool</th>${roles.map(r => `<th>${esc(ROLES[r].label)}</th>`).join('')}</tr></thead><tbody>${TOOLS.map(([k, l]) => `<tr><td>${l}</td>${roles.map(r => `<td><span class="lvl l${ROLES[r].p[k]}">${LVL[ROLES[r].p[k]]}</span></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function vDirectory() {
+  const admin = can('directory', 3);
+  const cos = DB.companies;
+  $('#view').innerHTML = `<section class="panel"><header><h2>People on ${esc(proj().name)}</h2><div class="r">${admin ? '<button class="btn pri sm" data-act="invite">+ Invite someone</button>' : ''}</div></header>
+    <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Company</th><th>Role</th><th>Email</th><th>Status</th>${admin ? '<th></th>' : ''}</tr></thead><tbody>${cos.flatMap(c => DB.users.filter(u => u.company === c.id && (u.projects.includes(PID) || u.role === 'admin'))).map(u => `<tr><td><b>${esc(u.name)}</b><div class="dim" style="font-size:12px">${esc(u.title || '')}</div></td><td>${esc(coById(u.company).name)}</td><td>${esc(ROLES[u.role].label)}</td><td class="mono" style="font-size:13px">${esc(u.email)}</td><td>${u.status !== 'active' ? '<span class="pill c-dim">Deactivated</span>' : u.invited ? '<span class="pill c-orange">Invited</span>' : '<span class="pill c-green">Active</span>'}</td>${admin ? `<td>${u.id !== ME.id ? `<div class="actions"><button class="btn sm" data-reset="${u.id}">${u.invited ? 'Resend invite' : 'Reset PIN'}</button><button class="btn sm ${u.status === 'active' ? 'warn' : ''}" data-tog="${u.id}">${u.status === 'active' ? 'Deactivate' : 'Reactivate'}</button></div>` : ''}</td>` : ''}</tr>`).join('')}</tbody></table></div></section>
+  <section class="panel"><header><h2>Permissions by role</h2><span class="dim" style="font-size:13px">None · Read · Standard (create and work own items, comment and mark up drawings) · Admin (approve, close, issue drawings). Tenant shows the most a shared client can get.</span></header>${permTable(Object.keys(ROLES).filter(r => r !== 'admin'))}</section>`;
+  $$('[data-act]', $('#view')).forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+  $$('[data-tog]').forEach(b => b.onclick = async () => { const u = userById(b.dataset.tog); const off = u.status === 'active'; if (off && !(await confirmModal(`Deactivate ${u.name}?`, 'They are signed out everywhere immediately and can no longer sign in. Their history stays on the project.', 'Deactivate'))) return; mutate(() => api('/site/manage/user', { user_id: u.id, action: off ? 'deactivate' : 'reactivate' }), `${u.name} ${off ? 'deactivated' : 'reactivated'}`, () => vDirectory()); });
+  $$('[data-reset]').forEach(b => b.onclick = async () => { const u = userById(b.dataset.reset); if (!(await confirmModal(u.invited ? `Resend ${u.name}'s invite?` : `Reset ${u.name}'s PIN?`, `A new PIN goes to ${u.email}. Any old PIN stops working and their sessions end.`, u.invited ? 'Resend' : 'Reset PIN'))) return; mutate(() => api('/site/manage/user', { user_id: u.id, action: 'reset_pin' }), `New PIN emailed to ${u.email}`, () => vDirectory()); });
+}
+const newPin = () => String(Math.floor(100000 + Math.random() * 900000));
+function inviteForm() {
+  openModal('Invite someone', `<div class="f2"><div class="field"><label for="iv_n">Name</label><input id="iv_n" autocomplete="off"></div><div class="field"><label for="iv_e">Work email</label><input id="iv_e" type="email" inputmode="email" autocomplete="off"></div></div>
+    <div class="f2"><div class="field"><label for="iv_c">Company</label><select id="iv_c">${DB.companies.filter(c => !String(c.id).startsWith('co_')).map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}<option value="__new">+ New company…</option></select></div><div class="field"><label for="iv_r">Role</label><select id="iv_r">${Object.entries(ROLES).filter(([k]) => !['admin', 'tenant'].includes(k)).map(([k, v]) => `<option value="${k}" ${k === 'sub' ? 'selected' : ''}>${v.label}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="iv_t">Job title (optional)</label><input id="iv_t" placeholder="Foreman, Project Architect…"></div>
+    <div class="field" id="iv_nc_w" hidden><label for="iv_nc">New company name</label><input id="iv_nc" placeholder="e.g. Metro Acoustics"></div>
+    <p class="fine" style="margin:0">They get an email from ContentPad with a sign-in link and a 6-digit PIN. They do not need a ContentPad membership.</p>`, 'Send invite', m => {
+    const n = $('#iv_n', m).value.trim(), e = $('#iv_e', m).value.trim().toLowerCase(); let c = $('#iv_c', m).value;
+    if (!n || !/^\S+@\S+\.\S+$/.test(e)) { toast('Add a name and a valid email.', true); return false; }
+    if (DB.users.some(u => u.email.toLowerCase() === e)) { toast('Someone with that email is already on the project.', true); return false; }
+    let company_name = null, organization_id = null;
+    if (c === '__new') { company_name = $('#iv_nc', m).value.trim(); if (!company_name) { toast('Name the new company.', true); return false; } }
+    else if (String(c).startsWith('co_')) company_name = coById(c).name; else { organization_id = c; company_name = coById(c).name; }
+    return mutate(() => api('/site/manage/invite', { name: n, email: e, role: $('#iv_r', m).value, title: $('#iv_t', m).value.trim() || null, organization_id, company_name, project_ids: [PID] }), `Invite emailed to ${e}`, () => { closeModal(); if (VIEW === 'directory') vDirectory(); }).then(x => x ? undefined : false);
+  }, m => { $('#iv_c', m).onchange = e => $('#iv_nc_w', m).hidden = e.target.value !== '__new'; });
+}
+/* ---------- Comments / photos / events ---------- */
+function composer(label = 'Add a comment', isResp = false) { return `<div class="composer"><label for="cmt" class="eyebrow">${label}</label><textarea id="cmt" placeholder="${isResp ? 'Your answer to the question' : 'Comment, update or question'}"></textarea><div class="actions"><button class="btn pri sm" id="postCmt">${isResp ? 'Post response' : 'Post'}</button><label class="btn sm" for="cmtPh" style="cursor:pointer">Attach photo</label><input id="cmtPh" type="file" accept="image/*" capture="environment" hidden><span id="phName" class="fine"></span></div></div>`; }
+function bindComposer(d, it, reopenFn, kind = 'comment') {
+  const b = $('#postCmt', d); if (!b) return; let photo = null;
+  $('#cmtPh', d).onchange = e => { photo = e.target.files[0] || null; $('#phName', d).textContent = photo ? 'Photo attached' : ''; };
+  b.onclick = () => {
+    const t = $('#cmt', d).value.trim(); if (!t && !photo) { toast('Write something or attach a photo.', true); return; }
+    if (kind === 'response' && !t) { toast('Write your answer.', true); return; }
+    mutate(async () => { if (t) await api('/site/event', { item_id: it.id, kind, body: t }); if (photo) await uploadPhoto(it.id, photo, t ? 'Photo' : 'Photo'); },
+      kind === 'response' ? 'Response posted · RFI manager notified' : 'Posted', reopen(it.id));
+  };
+}
+function shrink(file, max) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onerror = rej; r.onload = () => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .72)); }; img.onerror = () => rej(new Error('Not an image')); img.src = r.result; }; r.readAsDataURL(file); });
+}
+
+/* ---------- Layer: drawer / modal / toast (no native dialogs; tools run framed) ---------- */
+let modalStack = 0;
+function openDrawer(title, html, eyebrow, bind) {
+  const keepScroll = $('.drawer .body') && $('.drawer h3') && $('.drawer h3').textContent === title ? $('.drawer .body').scrollTop : 0;
+  $('#layer').innerHTML = `<div class="scrim" data-close></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(title)}"><header><div><div class="eyebrow">${esc(eyebrow || '')}</div><h3>${esc(title)}</h3></div><button class="x" data-close aria-label="Close">×</button></header><div class="body">${html}</div></aside>`;
+  $$('#layer [data-close]').forEach(x => x.onclick = closeLayer);
+  const d = $('#layer .drawer'); if (bind) bind(d); $('.body', d).scrollTop = keepScroll; $('.x', d).focus({ preventScroll: true });
+}
+function closeLayer() { $('#layer').innerHTML = ''; closeModal(); }
+function openModal(title, html, okLabel, onOk, bind) {
+  closeModal(); const w = document.createElement('div'); w.id = 'modalw';
+  w.innerHTML = `<div class="scrim" style="z-index:85" data-mc></div><div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}"><form novalidate><h3>${esc(title)}</h3>${html}<div class="actions" style="justify-content:flex-end"><button type="button" class="btn ghost" data-mc>Cancel</button><button type="submit" class="btn pri">${esc(okLabel)}</button></div></form></div>`;
+  document.body.appendChild(w); const m = $('.modal', w);
+  $$('[data-mc]', w).forEach(x => x.onclick = () => { closeModal(); if (w._res) w._res(null); });
+  $('form', m).onsubmit = async e => { e.preventDefault(); const r = await onOk(m); if (r === false) return; };
+  if (bind) bind(m); const f = $('input,select,textarea', m); if (f && matchMedia('(hover:hover)').matches) f.focus();
+  return w;
+}
+function closeModal() { const w = $('#modalw'); if (w) w.remove(); }
+function promptModal(title, text, ph) { return new Promise(res => { const w = openModal(title, `<p class="mid" style="margin:0">${esc(text)}</p><div class="field"><label for="pm_v">Note</label><textarea id="pm_v" placeholder="${esc(ph || '')}"></textarea></div>`, 'Save', m => { const v = $('#pm_v', m).value.trim(); closeModal(); res(v); }); w._res = res; }); }
+function confirmModal(title, text, ok) { return new Promise(res => { const w = openModal(title, `<p class="mid" style="margin:0">${esc(text)}</p>`, ok, () => { closeModal(); res(true); }); w._res = () => res(false); }); }
+function toast(msg, bad) { const t = document.createElement('div'); t.className = 'toast' + (bad ? ' bad' : ''); t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => t.remove(), bad ? 5200 : 2800); }
+function copyText(t) { try { navigator.clipboard.writeText(t).then(() => toast('Copied'), () => fallbackCopy(t)); } catch (e) { fallbackCopy(t); } }
+function fallbackCopy(t) { openModal('Copy this text', `<textarea id="cpy" style="min-height:240px;font-family:var(--fm);font-size:13px" readonly>${esc(t)}</textarea>`, 'Done', () => { closeModal(); }, m => { const a = $('#cpy', m); a.focus(); a.select(); }); }
+function refreshBehind() { renderNav(); if (['home', 'field', 'rfi', 'submittal', 'changes', 'plans'].includes(VIEW)) { ({ home: vHome, field: vField, rfi: vRfi, submittal: vSub, changes: vChanges, plans: vPlans })[VIEW](); } }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#modalw')) { const w = $('#modalw'); closeModal(); if (w._res) w._res(null); } else closeLayer(); } });
+
+function vNoProject() {
+  $('#view').innerHTML = ME.role === 'pm'
+    ? `<section class="panel" style="max-width:640px"><header><h2>Set up your first project</h2></header><p class="mid" style="margin:0 0 14px">A project holds its drawings, punch list, RFIs, submittals, daily logs and change orders. You can add the team once it exists.</p><button class="btn pri" id="firstProj">+ New project</button></section>`
+    : `<div class="empty">You are not on any project yet. JCC Management will add you, and you will get an email when they do.</div>`;
+  const f = $('#firstProj'); if (f) f.onclick = () => projectForm();
+}
+function projectForm(p) {
+  const isNew = !p; p = p || { name: '', client: '', status: 'active', floor: '', dob: '', start: '', finish: '', contract: '', scope: '', space_page: '', progress: 0 };
+  openModal(isNew ? 'New project' : `Edit · ${p.name}`, `
+    <div class="field"><label for="pj_n">Project name</label><input id="pj_n" value="${esc(p.name)}" placeholder="Floor 20 · Suites Ph.2"></div>
+    <div class="f2"><div class="field"><label for="pj_c">Client or tenant</label><input id="pj_c" value="${esc(p.client)}" placeholder="Work Lab NYC"></div><div class="field"><label for="pj_f">Floor</label><input id="pj_f" value="${esc(p.floor)}" placeholder="20"></div></div>
+    <div class="f2"><div class="field"><label for="pj_st">Status</label><select id="pj_st">${[['planning', 'Preconstruction'], ['active', 'In construction'], ['complete', 'Complete']].map(([k, l]) => `<option value="${k}" ${p.status === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div><div class="field"><label for="pj_d">DOB job number</label><input id="pj_d" value="${esc(p.dob === '—' ? '' : p.dob)}" placeholder="M01284417-I1"></div></div>
+    <div class="f2"><div class="field"><label for="pj_s">Start</label><input id="pj_s" type="date" value="${p.start || ''}"></div><div class="field"><label for="pj_e">Substantial completion</label><input id="pj_e" type="date" value="${p.finish || ''}"></div></div>
+    <div class="f2"><div class="field"><label for="pj_k">Contract value (USD)</label><input id="pj_k" type="number" inputmode="numeric" value="${p.contract || ''}"></div>${isNew ? '' : `<div class="field"><label for="pj_p">Percent complete</label><input id="pj_p" type="number" inputmode="numeric" min="0" max="100" value="${p.progress}"></div>`}</div>
+    <div class="field"><label for="pj_sc">Scope</label><textarea id="pj_sc" style="min-height:70px">${esc(p.scope)}</textarea></div>
+    <label style="display:flex;gap:10px;align-items:center;min-height:44px"><input type="checkbox" id="pj_sp" style="width:22px;height:22px" ${p.space_page === '2-park-ave' || (isNew && /^\s*20\s*$/.test(p.floor || '')) ? 'checked' : ''}> Use the Floor 20 room list from ContentPad Spaces for pins and locations</label>`, isNew ? 'Create project' : 'Save', m => {
+    const name = $('#pj_n', m).value.trim(); if (!name) { toast('Give the project a name.', true); return false; }
+    const body = { name, client: $('#pj_c', m).value.trim(), status: $('#pj_st', m).value, progress: isNew ? 0 : +$('#pj_p', m).value || 0, details: { floor: $('#pj_f', m).value.trim(), dob_job: $('#pj_d', m).value.trim(), start: $('#pj_s', m).value, finish: $('#pj_e', m).value, contract: +$('#pj_k', m).value || 0, scope: $('#pj_sc', m).value.trim(), space_page: $('#pj_sp', m).checked ? '2-park-ave' : '' } };
+    return mutate(async () => { const r = await api(isNew ? '/site/project/create' : '/site/project/update', isNew ? body : { ...body, project_id: p.id }); if (isNew) PID = r.project.id; }, isNew ? 'Project created' : 'Project saved', () => { closeModal(); VIEW = 'home'; render(); }).then(x => x ? undefined : false);
+  });
+}
+
+resume();
+</script>
+
+</body>
+</html>
